@@ -1,0 +1,192 @@
+---
+/**
+ * /styleguide — renders every token and component in this site's theme.
+ * Not linked, not indexed, excluded from the sitemap. The QA script
+ * screenshots it so you can check the system before (and after) building pages.
+ */
+import BaseLayout from "../components/layout/BaseLayout.astro";
+import Section from "../components/layout/Section.astro";
+import Atmosphere from "../components/visual/Atmosphere.astro";
+import Heading from "../components/ui/Heading.astro";
+import Eyebrow from "../components/ui/Eyebrow.astro";
+import Button from "../components/ui/Button.astro";
+import Mark from "../components/ui/Mark.astro";
+import Counter from "../components/ui/Counter.astro";
+import Card from "../components/ui/Card.astro";
+import UIWindow from "../components/artifacts/UIWindow.astro";
+import UIRow from "../components/artifacts/UIRow.astro";
+import FeatureList from "../components/sections/FeatureList.astro";
+import Steps from "../components/sections/Steps.astro";
+import FAQ from "../components/sections/FAQ.astro";
+import Marquee from "../components/sections/Marquee.astro";
+import Quote from "../components/sections/Quote.astro";
+import LeadForm from "../components/sections/LeadForm.astro";
+
+const swatches = [
+  "paper", "surface", "sunken", "line", "line-strong", "ink", "ink-2", "ink-3",
+  "accent", "accent-ink", "accent-soft", "accent-deep", "pop", "pop-ink", "positive", "negative",
+  "atmos-1", "atmos-2", "atmos-3", "mark", "mark-line",
+];
+---
+
+<BaseLayout title="Styleguide" noindex>
+  <Atmosphere slot="background" variant="mesh" grain />
+
+  <Section hero name="sg_hero">
+    <div class="grid gap-8 max-w-[62rem]">
+      <Eyebrow dot>Styleguide</Eyebrow>
+      <Heading as="h1" size="display" split="lines">
+        A headline that makes <em>one promise</em> and <Mark>keeps&nbsp;it</Mark>.
+      </Heading>
+      <p class="type-lead measure" data-reveal data-delay="350">
+        Lead paragraph. One or two sentences that explain how the promise is kept, in plain words a customer would use.
+      </p>
+      <div class="flex flex-wrap items-center gap-4" data-reveal data-delay="500">
+        <Button href="#" track="sg" magnetic>Primary action</Button>
+        <Button href="#" variant="link">Secondary link</Button>
+      </div>
+    </div>
+  </Section>
+
+  <Section name="sg_type" pad="sm">
+    <div class="grid gap-6">
+      <h2 class="type-label text-ink-3">Type roles</h2>
+      <p class="type-figure"><Counter value={311} prefix="+$" /></p>
+      <p class="type-display">Display, 88px</p>
+      <p class="type-title">Title, the section headline</p>
+      <p class="type-heading">Heading, for cards and steps</p>
+      <p class="type-lead measure">Lead — the paragraph under a headline. Comfortable and calm, never more than two sentences.</p>
+      <p class="type-body measure">Body — readable at 16–17px with generous leading. <strong>Strong text</strong> is ink-colored. Links inside copy are <a class="underline" href="#">underlined</a>.</p>
+      <p class="type-small text-ink-3">Small — captions and meta. Disclosures use micro.</p>
+      <p class="type-label text-accent-deep">Label · eyebrow</p>
+    </div>
+  </Section>
+
+  <Section name="sg_color" pad="sm">
+    <h2 class="type-label text-ink-3 mb-6">Color tokens</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+      {swatches.map((s) => (
+        <div class="grid gap-2">
+          <span class="h-16 rounded-inner" style={`background:var(--color-${s});box-shadow:var(--shadow-hairline)`}></span>
+          <span class="type-small text-ink-2">{s}</span>
+        </div>
+      ))}
+    </div>
+  </Section>
+
+  <Section name="sg_buttons" pad="sm">
+    <h2 class="type-label text-ink-3 mb-6">Buttons</h2>
+    <div class="flex flex-wrap items-center gap-4">
+      <Button>Primary</Button>
+      <Button variant="secondary">Secondary</Button>
+      <Button variant="ghost">Ghost</Button>
+      <Button variant="key">Keycap</Button>
+      <Button variant="link">Link style</Button>
+      <Button size="sm" icon="none">Small</Button>
+      <Button size="lg">Large</Button>
+    </div>
+  </Section>
+
+  <Section name="sg_marks" pad="sm">
+    <h2 class="type-label text-ink-3 mb-6">Marks</h2>
+    <p class="type-title max-w-[50rem]">
+      <Mark>Highlight</Mark>, <Mark type="underline">underline</Mark>, <Mark type="circle">$3,200</Mark>,
+      <Mark type="strike">-$32.00</Mark> and <Mark type="box">Off</Mark>.
+    </p>
+  </Section>
+
+  <Section name="sg_artifacts" pad="sm">
+    <h2 class="type-label text-ink-3 mb-6">Artifacts and cards</h2>
+    <div class="grid gap-8 lg:grid-cols-3 items-start">
+      <UIWindow brand="Brand" status="Live" variant="glass" progress={{ total: 5, current: 1 }} tilt>
+        <p class="type-small text-ink-3">Checking balance</p>
+        <p class="type-title nums"><Counter value={5837.4} format={{ style: "currency", currency: "USD" }} /></p>
+        <div class="grid gap-2" data-sequence data-sequence-loop>
+          <UIRow icon="arrow-down" title="Direct deposit" meta="Acme Inc. payroll" value="+$3,240.00" tone="positive" seq />
+          <UIRow icon="star" title="Payday Boost" meta="Because your paycheck lands here" value="+$25" tone="feature" seq />
+          <UIRow check title="Move one bill" meta="Last step of setup" value="+$50" seq />
+        </div>
+      </UIWindow>
+      <UIWindow variant="paper" chrome="browser" url="app.brand.com/report">
+        <p class="type-micro font-mono text-ink-3">August report</p>
+        <p class="type-display nums"><Counter value={96} mode="roll" /></p>
+        <UIRow title="Savings rate" value="+4%" tone="positive" />
+        <UIRow title="Overdraft fee" meta="Aug 22" value="-$32.00" tone="muted" />
+      </UIWindow>
+      <div class="grid gap-4">
+        <Card spotlight><p class="type-heading">Surface card</p><p class="type-small mt-2">Soft layered shadow.</p></Card>
+        <Card variant="outline"><p class="type-heading">Outline card</p></Card>
+        <Card variant="hard"><p class="type-heading">Hard card</p></Card>
+        <Card variant="ink"><p class="type-heading">Ink card</p></Card>
+      </div>
+    </div>
+  </Section>
+
+  <Section name="sg_features" pad="sm">
+    <h2 class="type-label text-ink-3 mb-6">Features</h2>
+    <FeatureList
+      items={[
+        { icon: "wallet", title: "Everything in one place", body: "Paycheck, spending, bills and transfers in one account." },
+        { icon: "arrow-left-right", title: "Easy money movement", body: "Send money and pay bills without friction." },
+        { icon: "shield-check", title: "Protected by default", body: "Strong sign-in and alerts come switched on." },
+        { icon: "bell", title: "Useful alerts", body: "Know when something changes, not every time something happens." },
+      ]}
+    />
+  </Section>
+
+  <Section name="sg_steps" pad="sm">
+    <h2 class="type-label text-ink-3 mb-6">Steps</h2>
+    <Steps
+      items={[
+        { title: "Open your account", body: "A simple application that takes about five minutes." },
+        { title: "Move your paycheck", body: "We give you a pre-filled form for your employer." },
+        { title: "Start earning", body: "Rewards land automatically every payday." },
+      ]}
+    />
+  </Section>
+
+  <Section name="sg_marquee" pad="sm">
+    <Marquee label="Highlights">
+      {["No monthly fees", "FDIC insured", "Early paydays", "2-minute setup", "Real human support"].map((t) => (
+        <span class="type-heading text-ink-3 whitespace-nowrap">{t}</span>
+      ))}
+    </Marquee>
+  </Section>
+
+  <Section name="sg_quote" pad="sm" width="narrow">
+    <Quote quote="The first bank that actually told me what to do next." name="Sample Person" role="Role, Company" />
+  </Section>
+
+  <Section name="sg_faq" pad="sm" width="narrow">
+    <h2 class="type-label text-ink-3 mb-6">FAQ</h2>
+    <FAQ
+      schema={false}
+      items={[
+        { q: "Is there a monthly fee?", a: "No. There are no monthly fees and no minimum balance." },
+        { q: "How long does it take to open?", a: "About five minutes on your phone." },
+      ]}
+    />
+  </Section>
+
+  <Section name="sg_dark" tone="dark">
+    <div class="grid gap-6 justify-items-start">
+      <Heading size="title" split="words">Dark tone flips every token.</Heading>
+      <p class="type-lead measure">Text, lines and surfaces adapt without extra classes.</p>
+      <Button>Primary on dark</Button>
+    </div>
+  </Section>
+
+  <Section name="sg_form" width="narrow">
+    <Card pad="lg">
+      <LeadForm
+        formName="styleguide"
+        fields={[
+          { name: "name", label: "Full name", autocomplete: "name", required: true, half: true },
+          { name: "email", label: "Work email", type: "email", autocomplete: "email", required: true, half: true },
+          { name: "message", label: "What do you need?", type: "textarea" },
+        ]}
+        submit="Send"
+      />
+    </Card>
+  </Section>
+</BaseLayout>

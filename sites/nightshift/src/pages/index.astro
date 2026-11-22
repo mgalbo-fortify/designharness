@@ -1,0 +1,626 @@
+---
+/**
+ * Nightshift — one night, dusk to morning. See design/strategy.md and concept.md.
+ */
+import BaseLayout from "../components/layout/BaseLayout.astro";
+import Section from "../components/layout/Section.astro";
+import Atmosphere from "../components/visual/Atmosphere.astro";
+import Heading from "../components/ui/Heading.astro";
+import Eyebrow from "../components/ui/Eyebrow.astro";
+import Button from "../components/ui/Button.astro";
+import Mark from "../components/ui/Mark.astro";
+import Counter from "../components/ui/Counter.astro";
+import Card from "../components/ui/Card.astro";
+import UIWindow from "../components/artifacts/UIWindow.astro";
+import UIRow from "../components/artifacts/UIRow.astro";
+import StickyStory from "../components/artifacts/StickyStory.astro";
+import StoryStep from "../components/artifacts/StoryStep.astro";
+import StoryView from "../components/artifacts/StoryView.astro";
+import Skyline from "../components/artifacts/Skyline.astro";
+import ShiftLog from "../components/artifacts/ShiftLog.astro";
+import IncidentCard from "../components/artifacts/IncidentCard.astro";
+import Steps from "../components/sections/Steps.astro";
+import FeatureList from "../components/sections/FeatureList.astro";
+import FAQ from "../components/sections/FAQ.astro";
+import LeadForm from "../components/sections/LeadForm.astro";
+import { site } from "../site.config";
+
+const f = site.facts;
+const DUSK = "oklch(86% 0.055 295) | oklch(89% 0.06 15) | oklch(91% 0.08 62)";
+const MORNING = "oklch(97% 0.022 75) | oklch(96.5% 0.03 55) | oklch(96% 0.025 225)";
+
+const chapters = [
+  {
+    id: "detect" as const,
+    time: "2:14 AM",
+    title: "A login that shouldn't exist.",
+    body: "Your CFO is asleep in Columbus. Her mailbox just signed in from Lisbon, right after a login prompt on her phone was approved. Your tools would file this as one more alert. We open it.",
+  },
+  {
+    id: "investigate" as const,
+    time: "2:16 AM",
+    title: "A person takes a look, not just a tool.",
+    body: "An analyst checks the context in minutes: 14 login prompts in a row, an address tied to a known phishing kit, a new rule forwarding invoices. It's an attack.",
+  },
+  {
+    id: "contain" as const,
+    time: "2:21 AM",
+    title: "Contained before anyone wakes up.",
+    body: "We sign the attacker out everywhere, reset the password, remove the forwarding rule and block the location. No ticket queue, no waiting for business hours.",
+  },
+  {
+    id: "report" as const,
+    time: "7:58 AM",
+    title: "Plain English, with your coffee.",
+    body: "What happened, what we did, and what (if anything) you need to do. Written for the person who reads it, not for a security team you don't have.",
+  },
+];
+---
+
+<BaseLayout
+  title="Nightshift · 24/7 security team for small businesses"
+  rawTitle
+  description="US-based analysts watch your devices, email and logins around the clock and stop attacks before they become incidents. No security team required."
+>
+  <Atmosphere slot="background" variant="mesh" grain />
+
+  <!-- 1 · HERO — dusk -->
+  <Section hero name="hero" atmos={DUSK} class="hero" width="wide">
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <Eyebrow dot reveal="fade" class="hero__eyebrow">On shift tonight</Eyebrow>
+        <Heading as="h1" size="display" split="lines" delay={80}>
+          Cybersecurity that works the <em>night&nbsp;shift</em>.
+        </Heading>
+        <p class="type-lead measure" data-reveal data-delay="350">
+          Nightshift's analysts watch your devices, email and logins around the clock, and stop attacks before they become incidents. No security team required.
+        </p>
+        <div class="hero__actions" data-reveal data-delay="500">
+          <Button href={site.cta.href} size="lg" track="hero" magnetic>{site.cta.label}</Button>
+          <Button href="#night" variant="link" track="hero_secondary">See a night on the shift</Button>
+        </div>
+        <ul class="hero__facts type-small" data-reveal data-delay="650">
+          <li>{f.coverage} monitoring</li>
+          <li>US-based analysts</li>
+          <li>About {f.setupMinutes}-minute setup</li>
+        </ul>
+      </div>
+      <div class="hero__artifact" data-reveal="rise" data-delay="600">
+        <div data-tilt="4"><ShiftLog /></div>
+      </div>
+    </div>
+    <Skyline />
+  </Section>
+
+  <!-- 2 · TENSION — night falls -->
+  <Section id="why" name="tension" tone="dark" class="tension" pad="lg">
+    <div class="tension__grid">
+      <Heading size="display" split="lines">
+        Your tools send alerts. At 2&nbsp;AM, <Mark type="underline" delay={200}>nobody reads them</Mark>.
+      </Heading>
+      <div class="tension__side">
+        <p class="type-lead" data-reveal>
+          Small businesses get the same attacks as big ones, without the team that watches for them. So alerts pile up in an inbox until Monday, and by then the damage is done.
+        </p>
+        <div class="alerts" aria-hidden="true" data-sequence data-sequence-start="400" data-sequence-interval="450">
+          <div class="alerts__count" data-seq><Counter value={47} duration={2200} /> <span>unread security alerts</span></div>
+          <div class="alerts__item" data-seq><span>Sat 1:12 AM</span> Unusual sign-in activity detected</div>
+          <div class="alerts__item" data-seq><span>Sat 3:40 AM</span> Multiple failed MFA attempts</div>
+          <div class="alerts__item" data-seq><span>Sun 2:05 AM</span> Suspicious inbox rule created</div>
+        </div>
+      </div>
+    </div>
+  </Section>
+
+  <!-- 3 · SIGNATURE — one night on the shift -->
+  <Section id="night" name="night_story" tone="dark" class="night" pad="sm">
+    <div class="night__intro">
+      <Eyebrow index={1}>One night on the shift</Eyebrow>
+      <Heading size="title" split="lines">Here's what happens while you sleep.</Heading>
+    </div>
+    <StickyStory ratio="5/7">
+      {chapters.map((c, i) => (
+        <StoryStep id={c.id}>
+          <p class="chapter__time nums">{c.time}</p>
+          <h3 class="type-title chapter__title">{c.title}</h3>
+          <p class="type-lead chapter__body">{c.body}</p>
+          {i === chapters.length - 1 && (
+            <div class="chapter__cta">
+              <Button href={site.cta.href} track="story">{site.cta.label}</Button>
+            </div>
+          )}
+          <Fragment slot="visual"><IncidentCard state={c.id} /></Fragment>
+        </StoryStep>
+      ))}
+      <Fragment slot="stage">
+        {chapters.map((c, i) => (
+          <StoryView id={c.id} initial={i === 0}><IncidentCard state={c.id} /></StoryView>
+        ))}
+      </Fragment>
+    </StickyStory>
+    <p class="type-small night__note">Illustrative scenario. Names and details are examples.</p>
+  </Section>
+
+  <!-- 4 · FACTS — first light -->
+  <Section id="facts" name="facts" atmos={MORNING} class="facts">
+    <div class="facts__head">
+      <Eyebrow>By the numbers</Eyebrow>
+      <Heading size="title" split="lines">Fast, and always on.</Heading>
+    </div>
+    <dl class="facts__grid" data-reveal-group data-stagger="110">
+      <div class="fact" data-reveal>
+        <dt class="type-small">Monitoring, with no gaps for weekends or holidays</dt>
+        <dd class="type-figure fact__figure">{f.coverage}</dd>
+      </div>
+      <div class="fact" data-reveal>
+        <dt class="type-small">Median time from alert to contained</dt>
+        <dd class="type-figure fact__figure"><Counter value={f.containMinutes} suffix=" min" /></dd>
+        <dd class="type-micro fact__source">{f.containSource}</dd>
+      </div>
+      <div class="fact" data-reveal>
+        <dt class="type-small">To get set up. No hardware to install</dt>
+        <dd class="type-figure fact__figure"><Counter value={f.setupMinutes} suffix=" min" /></dd>
+      </div>
+      <div class="fact" data-reveal>
+        <dt class="type-small">Per user per month, starting price</dt>
+        <dd class="type-figure fact__figure"><Counter value={f.pricePerUser} prefix="$" /></dd>
+      </div>
+    </dl>
+  </Section>
+
+  <!-- 5 · HOW IT WORKS -->
+  <Section id="how" name="how">
+    <div class="grid gap-block">
+      <div class="grid gap-4 max-w-[44rem]">
+        <Eyebrow index={2}>How it works</Eyebrow>
+        <Heading size="title" split="lines">Up and running <em>before lunch</em>.</Heading>
+      </div>
+      <Steps
+        items={[
+          { title: "Connect", body: `A ${f.setupMinutes}-minute setup with whoever manages your computers today. No hardware, nothing to rip out.` },
+          { title: "We watch", body: "Analysts and automation monitor every device, inbox and login, 24 hours a day, every day of the year." },
+          { title: "We act", body: "When something's wrong we contain it immediately, then explain what happened in plain English." },
+        ]}
+      />
+    </div>
+  </Section>
+
+  <!-- 6 · COVERAGE -->
+  <Section id="coverage" name="coverage">
+    <div class="coverage">
+      <div class="coverage__head">
+        <Eyebrow index={3}>Coverage</Eyebrow>
+        <Heading size="title" split="lines">Every way in, watched.</Heading>
+        <p class="type-lead" data-reveal>Attackers come in through three doors: devices, email and logins. We watch all three, and the response is included.</p>
+      </div>
+      <FeatureList
+        items={[
+          { icon: "laptop", title: "Every laptop and server", body: "Endpoint detection and response that can isolate a device in seconds." },
+          { icon: "mail", title: "Email protection", body: "Phishing and impersonation caught in Microsoft 365 and Google Workspace." },
+          { icon: "key-round", title: "Identity monitoring", body: "Impossible travel, MFA fatigue and risky sign-ins, watched around the clock." },
+          { icon: "siren", title: "Incident response included", body: "When we find something, we handle it. Not billed by the hour." },
+          { icon: "file-text", title: "A monthly report", body: "One page your leadership will actually read." },
+          { icon: "badge-check", title: "Insurance and compliance evidence", body: "Proof of EDR, MFA and monitoring for questionnaires and renewals." },
+        ]}
+      />
+    </div>
+  </Section>
+
+  <!-- 7 · REPORT — 8 AM -->
+  <Section id="report" name="report">
+    <div class="report">
+      <div class="report__copy">
+        <Eyebrow index={4}>Monthly report</Eyebrow>
+        <Heading size="title" split="lines">A report your leadership will <em>actually read</em>.</Heading>
+        <p class="type-lead" data-reveal>
+          Once a month: what we stopped, what we fixed, and what's left to do, on one page. When your insurer or a client sends a security questionnaire, the evidence is already in it.
+        </p>
+      </div>
+      <div class="report__artifact" data-reveal="rise">
+        <UIWindow variant="paper" chrome="browser" url="app.nightshift.example/reports/march" decorative>
+          <div class="report__head">
+            <p class="type-micro report__kicker">March report · Hartwell &amp; Co.</p>
+            <p class="report__title">A quiet month, <Mark type="highlight" delay={200}>and that's the point</Mark>.</p>
+          </div>
+          <div class="report__stats">
+            <div><span class="report__num nums"><Counter value={3} /></span><span class="type-micro">threats stopped</span></div>
+            <div><span class="report__num nums"><Mark type="circle" delay={900}>0</Mark></span><span class="type-micro">incidents</span></div>
+            <div><span class="report__num nums"><Counter value={142} /></span><span class="type-micro">devices covered</span></div>
+          </div>
+          <div class="grid gap-2">
+            <UIRow icon="shield-check" title="MFA on every account" meta="131 of 131 sign-ins" value="Done" tone="positive" />
+            <UIRow icon="refresh-cw" title="Laptops fully patched" meta="139 of 142 · 3 scheduled tonight" value="98%" />
+            <UIRow icon="file-check" title="Cyber insurance evidence" meta="EDR, MFA, 24/7 monitoring" value="Ready" tone="positive" />
+          </div>
+        </UIWindow>
+      </div>
+    </div>
+  </Section>
+
+  <!-- 8 · FAQ -->
+  <Section id="faq" name="faq" width="narrow">
+    <div class="grid gap-block">
+      <div class="grid gap-4">
+        <Eyebrow index={5}>Questions</Eyebrow>
+        <Heading size="title" split="lines">Questions, answered.</Heading>
+      </div>
+      <FAQ
+        items={[
+          { q: "Do we need IT staff to use Nightshift?", a: "No. We work with whoever manages your computers today, including outside IT providers." },
+          { q: "What happens when you find something?", a: "We contain it first: isolate the device, lock the account, block the sender. Then we call you and explain what happened and what, if anything, you need to do." },
+          { q: "Will it slow our computers down?", a: "The agent is lightweight. Most people never notice it's there." },
+          { q: "Does it help with cyber insurance?", a: "Yes. We provide the evidence insurers ask for, including endpoint detection and response, MFA coverage and 24/7 monitoring." },
+          { q: "Is there a long contract?", a: `Three months to start, then month to month. Pricing starts at $${f.pricePerUser} per user per month.` },
+        ]}
+      />
+    </div>
+  </Section>
+
+  <!-- 9 · CHECK — morning -->
+  <Section id="check" name="final_cta" pad="lg">
+    <div class="check">
+      <div class="check__copy">
+        <Heading size="display" split="lines">Go home. <em>We've got it</em> from here.</Heading>
+        <p class="type-lead" data-reveal>
+          Book a free security check: a 20-minute call and a scan of your Microsoft 365 or Google Workspace. You'll get a short list of what to fix, whether or not you hire us.
+        </p>
+        <ul class="check__list" data-reveal-group data-stagger="90">
+          <li data-reveal>No cost, no commitment</li>
+          <li data-reveal>Findings in plain English</li>
+          <li data-reveal>Works with your current IT provider</li>
+        </ul>
+      </div>
+      <Card pad="lg" class="check__card" reveal="rise">
+        <h2 class="type-heading">Get a free security check</h2>
+        <p class="type-small check__sub">We'll reply within one business day to book your call.</p>
+        <LeadForm
+          formName="security-check"
+          fields={[
+            { name: "name", label: "Full name", autocomplete: "name", required: true, half: true },
+            { name: "email", label: "Work email", type: "email", autocomplete: "email", required: true, half: true },
+            { name: "company", label: "Company", autocomplete: "organization", required: true, half: true },
+            { name: "employees", label: "Employees", type: "select", options: ["10–25", "26–50", "51–100", "101–200", "200+"], required: true, half: true },
+          ]}
+          submit="Book my security check"
+          success="Thanks. We'll be in touch within one business day to book your check."
+        />
+      </Card>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    --skyline-h: clamp(110px, 14vw, 210px);
+    overflow: hidden;
+    /* Leave room for the skyline so it never sits under the copy. */
+    padding-bottom: calc(var(--skyline-h) + clamp(1.5rem, 3vw, 3rem));
+  }
+  .hero__grid {
+    display: grid;
+    gap: clamp(3rem, 2rem + 4vw, 5rem);
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .hero__grid {
+      grid-template-columns: 7fr 5fr;
+    }
+  }
+  .hero__copy {
+    display: grid;
+    gap: 1.75rem;
+    justify-items: start;
+  }
+  .hero__copy :global(h1) {
+    max-width: 12ch;
+  }
+  .hero__copy :global(.hero__eyebrow) {
+    --eyebrow-color: var(--color-accent-deep);
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+    margin-top: 0.5rem;
+  }
+  .hero__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    color: var(--color-ink-2);
+  }
+  .hero__facts li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .hero__facts li::before {
+    content: "";
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: 50%;
+    background: var(--color-accent-deep);
+  }
+  .hero__artifact {
+    position: relative;
+    z-index: 1;
+    justify-self: center;
+    width: 100%;
+    max-width: 30rem;
+  }
+
+  /* ---------- Tension ---------- */
+  .tension {
+    background:
+      radial-gradient(1px 1px at 12% 18%, oklch(100% 0 0 / 0.5), transparent),
+      radial-gradient(1px 1px at 72% 12%, oklch(100% 0 0 / 0.4), transparent),
+      radial-gradient(1.5px 1.5px at 88% 40%, oklch(100% 0 0 / 0.35), transparent),
+      radial-gradient(1px 1px at 35% 8%, oklch(100% 0 0 / 0.4), transparent),
+      radial-gradient(1px 1px at 55% 30%, oklch(100% 0 0 / 0.3), transparent),
+      var(--color-paper);
+  }
+  .tension__grid {
+    display: grid;
+    gap: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+  }
+  @media (min-width: 1024px) {
+    .tension__grid {
+      grid-template-columns: 7fr 5fr;
+      align-items: end;
+    }
+  }
+  .tension__side {
+    display: grid;
+    gap: 2rem;
+  }
+  .alerts {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .alerts__count {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    line-height: 1;
+    color: oklch(78% 0.13 30);
+  }
+  .alerts__count span:last-child {
+    font-family: var(--font-sans);
+    font-size: var(--text-small);
+    color: var(--color-ink-3);
+  }
+  .alerts__item {
+    display: flex;
+    gap: 0.9rem;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-inner);
+    background: oklch(100% 0 0 / 0.04);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+    color: var(--color-ink-2);
+    font-size: 0.875rem;
+  }
+  .alerts__item span {
+    flex: none;
+    width: 5.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-ink-3);
+    padding-top: 0.1rem;
+  }
+
+  /* ---------- Night story ---------- */
+  .night {
+    padding-top: 0;
+  }
+  .night__intro {
+    display: grid;
+    gap: 1rem;
+    max-width: 40rem;
+    padding-top: calc(var(--space-section) * 0.4);
+  }
+  .night__intro :global(.eyebrow),
+  .facts__head :global(.eyebrow) {
+    --eyebrow-color: var(--color-accent-deep);
+  }
+  .night :global(.story) {
+    margin-top: var(--space-block);
+    --stage-h: 36rem;
+  }
+  .chapter__time {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--color-accent);
+    letter-spacing: 0.02em;
+  }
+  .chapter__title {
+    margin-top: 0.75rem;
+  }
+  .chapter__body {
+    margin-top: 1.25rem;
+    max-width: 30rem;
+  }
+  .chapter__cta {
+    margin-top: 2rem;
+  }
+  .night__note {
+    margin-top: 2rem;
+    color: var(--color-ink-3);
+  }
+
+  /* ---------- Facts: sunrise ---------- */
+  .facts {
+    padding-top: calc(var(--space-section) + 9rem);
+  }
+  .facts::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 26rem;
+    pointer-events: none;
+    background:
+      radial-gradient(60% 55% at 50% 0%, oklch(82% 0.12 60 / 0.55), transparent 70%),
+      linear-gradient(to bottom, oklch(17.5% 0.04 268) 0%, oklch(34% 0.07 300) 22%, oklch(70% 0.09 20 / 0.7) 48%, transparent 100%);
+  }
+  .facts :global(.container-site) {
+    position: relative;
+  }
+  .facts__head {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: var(--space-block);
+  }
+  .facts__grid {
+    display: grid;
+    gap: 2.5rem 2rem;
+  }
+  @media (min-width: 768px) {
+    .facts__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1100px) {
+    .facts__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .fact {
+    display: grid;
+    align-content: start;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-line-strong);
+  }
+  .fact dt {
+    order: 2;
+    max-width: 16rem;
+    color: var(--color-ink-2);
+  }
+  .fact__figure {
+    order: 1;
+    font-size: clamp(3rem, 2.2rem + 2.6vw, 4.75rem);
+    white-space: nowrap;
+  }
+  .fact__source {
+    order: 3;
+    color: var(--color-ink-3);
+  }
+
+  /* ---------- Coverage ---------- */
+  .coverage {
+    display: grid;
+    gap: var(--space-block);
+  }
+  @media (min-width: 1024px) {
+    .coverage {
+      grid-template-columns: 5fr 7fr;
+      align-items: start;
+    }
+    .coverage__head {
+      position: sticky;
+      top: calc(var(--nav-h) + 2rem);
+    }
+  }
+  .coverage__head {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  /* ---------- Report ---------- */
+  .report {
+    display: grid;
+    gap: var(--space-block);
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .report {
+      grid-template-columns: 5fr 7fr;
+    }
+  }
+  .report__copy {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .report__artifact {
+    max-width: 36rem;
+    width: 100%;
+    justify-self: center;
+  }
+  .report__head {
+    display: grid;
+    gap: 0.4rem;
+    padding-bottom: 0.5rem;
+  }
+  .report__kicker {
+    font-family: var(--font-mono);
+    color: var(--color-ink-3);
+  }
+  .report__title {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+  .report__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    padding-block: 0.75rem 1rem;
+    border-block: 1px solid var(--color-line);
+    margin-bottom: 0.25rem;
+  }
+  .report__stats > div {
+    display: grid;
+    gap: 0.15rem;
+    color: var(--color-ink-3);
+  }
+  .report__num {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    line-height: 1.1;
+    color: var(--color-ink);
+  }
+
+  /* ---------- Check ---------- */
+  .check {
+    display: grid;
+    gap: var(--space-block);
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .check {
+      grid-template-columns: 6fr 6fr;
+    }
+  }
+  .check__copy {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .check__list {
+    display: grid;
+    gap: 0.6rem;
+    color: var(--color-ink);
+    font-weight: 500;
+  }
+  .check__list li {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .check__list li::before {
+    content: "";
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: var(--color-accent) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='%23141a33' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / 0.85rem no-repeat;
+  }
+  .check__sub {
+    margin-block: 0.4rem 1.75rem;
+    color: var(--color-ink-3);
+  }
+</style>

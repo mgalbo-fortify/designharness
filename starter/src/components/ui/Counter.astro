@@ -1,0 +1,54 @@
+---
+/**
+ * Counter — a number that counts up (or rolls like an odometer) when shown.
+ * The final value is server-rendered, so it's correct with no JS and for SEO.
+ *
+ *   <Counter value={3240} format={{ style: "currency", currency: "USD" }} />
+ *   <Counter value={96} mode="roll" />
+ *   <Counter value={12} suffix="k+" />
+ *
+ * Prefer reading values from site.config.ts `facts` so copy and visuals agree.
+ */
+interface Props {
+  value: number;
+  from?: number;
+  mode?: "tween" | "roll";
+  format?: Intl.NumberFormatOptions;
+  prefix?: string;
+  suffix?: string;
+  duration?: number;
+  delay?: number;
+  locale?: string;
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const {
+  value,
+  from = 0,
+  mode = "tween",
+  format = {},
+  prefix = "",
+  suffix = "",
+  duration,
+  delay,
+  locale = "en-US",
+  class: cls = "",
+  ...rest
+} = Astro.props;
+
+const text = `${prefix}${new Intl.NumberFormat(locale, format).format(value)}${suffix}`;
+---
+
+<span
+  class:list={["nums", cls]} {...rest}
+  data-count={value}
+  data-count-from={from}
+  data-count-mode={mode}
+  data-count-format={Object.keys(format).length ? JSON.stringify(format) : undefined}
+  data-count-prefix={prefix || undefined}
+  data-count-suffix={suffix || undefined}
+  data-count-duration={duration}
+  data-count-locale={locale}
+  data-delay={delay}>{text}</span
+>

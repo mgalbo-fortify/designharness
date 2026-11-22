@@ -1,0 +1,206 @@
+---
+/**
+ * Button — renders <a> when `href` is set, otherwise <button>.
+ *
+ * Variants: primary (accent fill), secondary (surface + hairline), ghost
+ * (text + hover fill), link (underline that draws), inverse (for dark/accent
+ * sections), key (hard-shadow "keycap", Financial Edge style).
+ * The arrow icon slides out and a twin slides in on hover.
+ *
+ * Every CTA should pass `track` so clicks are attributable ("hero", "pricing").
+ */
+import type { HTMLAttributes } from "astro/types";
+
+type Props = {
+  href?: string;
+  type?: "button" | "submit" | "reset";
+  variant?: "primary" | "secondary" | "ghost" | "link" | "inverse" | "key";
+  size?: "sm" | "md" | "lg";
+  icon?: "arrow" | "none";
+  magnetic?: boolean;
+  track?: string;
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+} & Omit<HTMLAttributes<"a"> & HTMLAttributes<"button">, "type">;
+
+const {
+  href,
+  type = "button",
+  variant = "primary",
+  size = "md",
+  icon = "arrow",
+  magnetic = false,
+  track,
+  class: cls = "",
+  ...rest
+} = Astro.props;
+
+const Tag = href ? "a" : "button";
+const classes = ["btn", `btn--${variant}`, `btn--${size}`, cls];
+---
+
+<Tag
+  href={href}
+  type={href ? undefined : type}
+  class:list={classes}
+  data-track={track}
+  data-magnetic={magnetic ? "0.25" : undefined}
+  {...rest}
+>
+  <span class="btn__label"><slot /></span>
+  {icon === "arrow" && variant !== "link" && (
+    <span class="btn__icon" aria-hidden="true">
+      <svg viewBox="0 0 16 16" width="16" height="16"><path d="M2.5 8h10M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <svg viewBox="0 0 16 16" width="16" height="16"><path d="M2.5 8h10M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    </span>
+  )}
+</Tag>
+
+<style>
+  .btn {
+    --btn-h: 3.25rem;
+    --btn-px: 1.6rem;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: var(--btn-h);
+    padding-inline: var(--btn-px);
+    border-radius: var(--radius-control);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: var(--font-weight-strong);
+    letter-spacing: -0.005em;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    isolation: isolate;
+    transition:
+      background-color var(--dur-ui) var(--ease-out),
+      color var(--dur-ui) var(--ease-out),
+      box-shadow var(--dur-ui) var(--ease-out),
+      transform var(--dur-ui) var(--ease-snap);
+  }
+  .btn:active {
+    transform: translateY(1px) scale(0.985);
+  }
+  .btn--sm { --btn-h: 2.75rem; --btn-px: 1.15rem; font-size: 0.9375rem; }
+  .btn--lg { --btn-h: 3.75rem; --btn-px: 2rem; font-size: 1.0625rem; }
+
+  /* primary */
+  .btn--primary {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    box-shadow: var(--shadow-button);
+  }
+  .btn--primary:hover {
+    background: color-mix(in oklch, var(--color-accent) 88%, var(--color-black));
+  }
+  /* shine sweep */
+  .btn--primary::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(105deg, transparent 35%, oklch(100% 0 0 / 0.22) 50%, transparent 65%);
+    background-size: 250% 100%;
+    background-position: 120% 0;
+    transition: background-position 900ms var(--ease-out);
+    pointer-events: none;
+  }
+  .btn--primary:hover::after {
+    background-position: -20% 0;
+  }
+
+  /* secondary */
+  .btn--secondary {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-hairline), 0 1px 2px oklch(0% 0 0 / 0.06);
+  }
+  .btn--secondary:hover {
+    box-shadow: 0 0 0 1px var(--color-line-strong), 0 6px 16px -8px oklch(0% 0 0 / 0.18);
+  }
+
+  /* ghost */
+  .btn--ghost {
+    color: var(--color-ink);
+  }
+  .btn--ghost:hover {
+    background: color-mix(in oklch, var(--color-ink) 6%, transparent);
+  }
+
+  /* inverse (on dark or accent sections) */
+  .btn--inverse {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .btn--inverse:hover {
+    background: color-mix(in oklch, var(--color-ink) 88%, var(--color-paper));
+  }
+
+  /* key: hard-shadow keycap */
+  .btn--key {
+    --kd: 4px;
+    background: var(--color-pop);
+    color: var(--color-pop-ink);
+    border: 2px solid var(--color-ink);
+    border-radius: 0.75rem;
+    box-shadow: 0 var(--kd) 0 0 var(--color-ink);
+    transition-duration: 120ms;
+  }
+  .btn--key:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 calc(var(--kd) + 1px) 0 0 var(--color-ink);
+  }
+  .btn--key:active {
+    transform: translateY(var(--kd));
+    box-shadow: 0 0 0 0 var(--color-ink);
+  }
+
+  /* link: underline draws from the left */
+  .btn--link {
+    --btn-px: 0;
+    min-height: 2.75rem;
+    color: var(--color-ink);
+    border-radius: 2px;
+  }
+  .btn--link .btn__label {
+    padding-bottom: 0.2em;
+    background:
+      linear-gradient(currentColor, currentColor) no-repeat left bottom / 0% 1.5px,
+      linear-gradient(color-mix(in oklch, currentColor 28%, transparent), color-mix(in oklch, currentColor 28%, transparent)) no-repeat left bottom / 100% 1.5px;
+    transition: background-size 500ms var(--ease-out);
+  }
+  .btn--link:hover .btn__label {
+    background-size: 100% 1.5px, 100% 1.5px;
+  }
+  .btn--link:active {
+    transform: none;
+  }
+
+  /* arrow swap */
+  .btn__icon {
+    position: relative;
+    display: inline-grid;
+    width: 1rem;
+    height: 1rem;
+    overflow: hidden;
+  }
+  .btn__icon svg {
+    grid-area: 1 / 1;
+    transition: transform 450ms var(--ease-out);
+  }
+  .btn__icon svg:last-child {
+    transform: translateX(-150%);
+  }
+  .btn:hover .btn__icon svg:first-child {
+    transform: translateX(150%);
+  }
+  .btn:hover .btn__icon svg:last-child {
+    transform: translateX(0);
+  }
+</style>

@@ -1,0 +1,118 @@
+---
+/**
+ * Card — a surface. Pick the variant that matches the site's material:
+ *   surface  white card with soft layered shadow (default)
+ *   glass    translucent, blurred, bright inner edge (needs a colorful backdrop)
+ *   outline  hairline only, no shadow (editorial, grid-paper sites)
+ *   ink      dark card for emphasis
+ *   hard     hairline + hard offset shadow (graphic/brutalist sites)
+ * Don't put every piece of content in a card. Cards are for things that
+ * are objects (a product, a plan, a quote), not for paragraphs.
+ */
+interface Props {
+  as?: "div" | "article" | "li" | "a" | "figure";
+  href?: string;
+  variant?: "surface" | "glass" | "outline" | "ink" | "hard";
+  pad?: "none" | "sm" | "md" | "lg";
+  tilt?: boolean;
+  spotlight?: boolean;
+  reveal?: string | false;
+  delay?: number;
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const {
+  as: Tag = "div",
+  href,
+  variant = "surface",
+  pad = "md",
+  tilt = false,
+  spotlight = false,
+  reveal = false,
+  delay,
+  class: cls = "",
+  ...rest
+} = Astro.props;
+---
+
+<Tag
+  href={href}
+  class:list={["card", `card--${variant}`, `card--pad-${pad}`, cls]} {...rest}
+  data-reveal={reveal || undefined}
+  data-delay={delay}
+  data-spotlight={spotlight ? "" : undefined}
+>
+  {tilt ? <div class="card__tilt" data-tilt="6"><slot /></div> : <slot />}
+</Tag>
+
+<style>
+  .card {
+    position: relative;
+    display: block;
+    border-radius: var(--radius-card);
+    color: var(--color-ink-2);
+  }
+  .card--pad-sm { padding: 1.25rem; }
+  .card--pad-md { padding: clamp(1.5rem, 1.1rem + 1.2vw, 2.25rem); }
+  .card--pad-lg { padding: clamp(2rem, 1.3rem + 2.4vw, 3.5rem); }
+
+  .card--surface {
+    background: var(--color-surface);
+    box-shadow: var(--shadow-hairline), var(--shadow-card);
+  }
+  .card--glass {
+    background:
+      radial-gradient(120% 80% at 0% 0%, oklch(100% 0 0 / 0.75), transparent 60%),
+      linear-gradient(180deg, oklch(100% 0 0 / 0.78), oklch(100% 0 0 / 0.62));
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    box-shadow: var(--shadow-glass);
+  }
+  .card--outline {
+    box-shadow: inset 0 0 0 1px var(--color-line-strong);
+  }
+  .card--ink {
+    background: var(--color-ink);
+    color: color-mix(in oklch, var(--color-paper) 80%, transparent);
+  }
+  .card--ink :global(h2, h3, h4, strong) {
+    color: var(--color-paper);
+  }
+  .card--hard {
+    background: var(--color-surface);
+    border: 2px solid var(--color-ink);
+    border-radius: calc(var(--radius-card) * 0.6);
+    box-shadow: var(--shadow-hard);
+  }
+
+  a.card {
+    transition:
+      transform 450ms var(--ease-out),
+      box-shadow 450ms var(--ease-out);
+  }
+  a.card:hover {
+    transform: translateY(-3px);
+  }
+  a.card--surface:hover {
+    box-shadow: var(--shadow-hairline), var(--shadow-lift);
+  }
+
+  /* pointer light */
+  .card[data-spotlight]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(28rem circle at var(--mx, 50%) var(--my, 50%), color-mix(in oklch, var(--color-accent) 12%, transparent), transparent 60%);
+    transition: opacity 400ms var(--ease-out);
+  }
+  .card[data-spotlight]:global(.is-lit)::before {
+    opacity: 1;
+  }
+  .card__tilt {
+    height: 100%;
+  }
+</style>

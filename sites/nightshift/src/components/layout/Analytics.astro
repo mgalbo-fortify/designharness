@@ -1,0 +1,47 @@
+---
+/**
+ * Analytics — loads only the providers configured in site.config.ts.
+ * Events are sent through src/lib/analytics.ts `track()`.
+ */
+import { site } from "../../site.config";
+const a = site.analytics;
+---
+
+{a.plausibleDomain && (
+  <>
+    <script is:inline defer data-domain={a.plausibleDomain} src="https://plausible.io/js/script.tagged-events.js"></script>
+    <script is:inline>window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments); };</script>
+  </>
+)}
+
+{a.ga4 && (
+  <>
+    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${a.ga4}`}></script>
+    <script is:inline define:vars={{ id: a.ga4 }}>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag("js", new Date());
+      window.gtag("config", id);
+    </script>
+  </>
+)}
+
+{a.metaPixel && (
+  <script is:inline define:vars={{ id: a.metaPixel }}>
+    !(function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+      if (!f._fbq) f._fbq = n;
+      n.push = n; n.loaded = !0; n.version = "2.0"; n.queue = [];
+      t = b.createElement(e); t.async = !0; t.src = v;
+      s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+    window.fbq("init", id);
+    window.fbq("track", "PageView");
+  </script>
+)}
+
+{/*
+  PostHog: paste the official snippet from your PostHog project settings here,
+  wrapped in {a.posthogKey && ( … )}. track() already forwards to window.posthog.
+*/}

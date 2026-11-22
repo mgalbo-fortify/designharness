@@ -1,0 +1,147 @@
+---
+/**
+ * Skyline — the hero's bottom edge. A procedurally generated city in night
+ * navy, so the hero melts into the dark section below. Office windows
+ * switch off one by one while it's on screen (the workday ending); one
+ * amber window, Nightshift's, stays lit and glows.
+ * Deterministic (seeded), so server and client agree. Pausable. Under
+ * reduced motion it renders the end state: most lights out, the lamp on.
+ */
+interface Props {
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const { class: cls = "", ...rest} = Astro.props;
+
+let seed = 7;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+
+const W = 1440;
+const H = 260;
+type Win = { x: number; y: number; on: boolean; lamp?: boolean };
+const buildings: { x: number; y: number; w: number; h: number; tone: number }[] = [];
+const windows: Win[] = [];
+
+let x = -20;
+while (x < W + 20) {
+  const w = 60 + Math.round(rnd() * 90);
+  const h = 70 + Math.round(rnd() * 150);
+  const tone = rnd() < 0.5 ? 0 : 1;
+  buildings.push({ x, y: H - h, w, h, tone });
+  const cols = Math.floor((w - 16) / 14);
+  const rows = Math.floor((h - 24) / 18);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (rnd() < 0.55) windows.push({ x: x + 10 + c * 14, y: H - h + 14 + r * 18, on: rnd() < 0.8 });
+    }
+  }
+  x += w + Math.round(rnd() * 6);
+}
+// Nightshift's window: right of center, mid-height.
+const lampIdx = windows.reduce((best, w, i) => {
+  const d = Math.abs(w.x - W * 0.66) + Math.abs(w.y - (H - 120)) * 2;
+  const bd = Math.abs(windows[best].x - W * 0.66) + Math.abs(windows[best].y - (H - 120)) * 2;
+  return d < bd ? i : best;
+}, 0);
+windows[lampIdx].lamp = true;
+windows[lampIdx].on = true;
+---
+
+<div class:list={["skyline", cls]} {...rest} aria-hidden="true" data-skyline>
+  <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <radialGradient id="lamp-glow">
+        <stop offset="0%" stop-color="oklch(85% 0.15 75)" stop-opacity="0.75"></stop>
+        <stop offset="100%" stop-color="oklch(85% 0.15 75)" stop-opacity="0"></stop>
+      </radialGradient>
+    </defs>
+    {buildings.map((b) => (
+      <rect x={b.x} y={b.y} width={b.w} height={b.h + 2} class:list={["bldg", b.tone && "bldg--b"]}></rect>
+    ))}
+    {windows.map((w, i) =>
+      w.lamp ? (
+        <g class="lamp">
+          <circle cx={w.x + 3} cy={w.y + 4} r="46" fill="url(#lamp-glow)" class="lamp__glow"></circle>
+          <rect x={w.x} y={w.y} width="6" height="8" rx="0.8" class="lamp__win"></rect>
+        </g>
+      ) : (
+        <rect x={w.x} y={w.y} width="6" height="8" rx="0.8" class:list={["win", w.on && "is-on"]} data-i={i}></rect>
+      ),
+    )}
+  </svg>
+</div>
+
+<script>
+  import { isPaused, motionAllowed, visibility } from "../../motion/env";
+
+  for (const root of document.querySelectorAll<HTMLElement>("[data-skyline]")) {
+    const lit = Array.from(root.querySelectorAll<SVGRectElement>(".win.is-on"));
+    // Shuffle deterministically-enough for a natural order.
+    lit.sort((a, b) => Number(a.dataset.i) * 7919 % 97 - Number(b.dataset.i) * 7919 % 97);
+    const keep = Math.round(lit.length * 0.12); // a few late workers remain
+
+    if (!motionAllowed()) {
+      lit.slice(keep).forEach((w) => w.classList.remove("is-on"));
+      root.classList.add("is-night");
+      continue;
+    }
+
+    const vis = visibility(root);
+    let i = keep;
+    let last = performance.now() + 1500; // start after the hero entrance
+    const tick = (now: number) => {
+      if (i >= lit.length) {
+        root.classList.add("is-night");
+        return;
+      }
+      const gap = i < keep + 12 ? 260 : 120;
+      if (vis.visible && !isPaused() && now - last > gap) {
+        lit[i++].classList.remove("is-on");
+        last = now;
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+</script>
+
+<style>
+  .skyline {
+    position: absolute;
+    inset: auto 0 -1px 0;
+    height: var(--skyline-h, clamp(110px, 14vw, 210px));
+    pointer-events: none;
+  }
+  .skyline svg {
+    width: 100%;
+    height: 100%;
+  }
+  .bldg {
+    fill: oklch(17.5% 0.04 268);
+  }
+  .bldg--b {
+    fill: oklch(20% 0.045 268);
+  }
+  .win {
+    fill: oklch(30% 0.04 268);
+    transition: fill 900ms var(--ease-out);
+  }
+  .win.is-on {
+    fill: oklch(88% 0.07 85);
+  }
+  .lamp__win {
+    fill: oklch(84% 0.16 75);
+  }
+  .lamp__glow {
+    opacity: 0.35;
+    transition: opacity 2.4s var(--ease-out);
+  }
+  .skyline:global(.is-night) .lamp__glow {
+    opacity: 1;
+    animation: lamp 4s ease-in-out infinite alternate;
+  }
+  @keyframes lamp {
+    to { opacity: 0.7; }
+  }
+</style>

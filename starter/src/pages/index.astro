@@ -1,0 +1,75 @@
+---
+/**
+ * HOME — template skeleton. The build-site skill replaces every [bracketed]
+ * placeholder; QA fails while any remain. The order below is the default
+ * narrative arc (harness/process/strategy.md). Reorder, cut or add sections
+ * to fit the brief; the hero and the signature section are always bespoke.
+ */
+import BaseLayout from "../components/layout/BaseLayout.astro";
+import Section from "../components/layout/Section.astro";
+import Atmosphere from "../components/visual/Atmosphere.astro";
+import Heading from "../components/ui/Heading.astro";
+import Eyebrow from "../components/ui/Eyebrow.astro";
+import Button from "../components/ui/Button.astro";
+import Steps from "../components/sections/Steps.astro";
+import FAQ from "../components/sections/FAQ.astro";
+import { site } from "../site.config";
+---
+
+<BaseLayout title="[Page title: promise in 3–6 words]" rawTitle description="[Meta description: 140–160 characters]">
+  <Atmosphere slot="background" variant="mesh" grain />
+
+  <!-- 1. HERO: the promise + the product artifact -->
+  <Section hero name="hero">
+    <div class="grid gap-12 lg:grid-cols-[7fr_5fr] lg:items-center">
+      <div class="grid gap-8 justify-items-start">
+        <Heading as="h1" size="display" split="lines">[Hero headline with one <em>accent phrase</em>]</Heading>
+        <p class="type-lead measure" data-reveal data-delay="350">[Subhead: how the promise is kept, one or two sentences]</p>
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-4" data-reveal data-delay="500">
+          <Button href={site.cta.href} size="lg" track="hero">{site.cta.label}</Button>
+          <Button href="#how" variant="link">[Secondary action]</Button>
+        </div>
+      </div>
+      <div data-reveal="rise" data-delay="600">[Hero artifact: UIWindow, SVG scene or canvas]</div>
+    </div>
+  </Section>
+
+  <!-- 2. PROBLEM / TENSION -->
+  <Section id="why" name="problem">
+    <div class="grid gap-6 lg:grid-cols-2 lg:items-end">
+      <Heading size="title" split="lines">[The tension the visitor feels]</Heading>
+      <p class="type-lead" data-reveal>[Why the status quo fails them]</p>
+    </div>
+  </Section>
+
+  <!-- 3. HOW IT WORKS -->
+  <Section id="how" name="how">
+    <div class="grid gap-block">
+      <div class="grid gap-4 max-w-[40rem]">
+        <Eyebrow>How it works</Eyebrow>
+        <Heading size="title" split="lines">[How it works, in one line]</Heading>
+      </div>
+      <Steps items={[{ title: "[Step one]", body: "[One line]" }, { title: "[Step two]", body: "[One line]" }, { title: "[Step three]", body: "[One line]" }]} />
+    </div>
+  </Section>
+
+  <!-- 4. SIGNATURE SECTION: the concept's motion set-piece (StickyStory, scrub scene, demo) -->
+
+  <!-- 5. PROOF: numbers, quote, logos, security -->
+
+  <!-- 6. FAQ: objections, answered -->
+  <Section id="faq" name="faq" width="narrow">
+    <div class="grid gap-block">
+      <Heading size="title" split="lines">[Questions, answered]</Heading>
+      <FAQ items={[{ q: "[Real objection as a question]", a: "[Answer in the first sentence]" }]} />
+    </div>
+  </Section>
+
+  <!-- 7. FINAL CTA: restate the promise -->
+  <Section id="start" name="final_cta" pad="lg">
+    <div class="grid gap-8 justify-items-center text-center">
+      <Heading size="display" split="lines">[Restated promise]</Heading>
+      <Button href={site.cta.href} size="lg" track="final">{site.cta.label}</Button>
+    </div>
+  </Section>
+</BaseLayout>

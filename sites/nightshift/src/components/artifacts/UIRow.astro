@@ -1,0 +1,155 @@
+---
+/**
+ * UIRow — one line item inside a UIWindow: a transaction, an alert, a task,
+ * a setting. Realistic content is what sells an artifact: specific names,
+ * plausible amounts, real-looking dates (see harness/design/artifacts.md).
+ *
+ *   <UIRow icon="arrow-down" title="Direct deposit" meta="Acme Inc. payroll" value="+$3,240.00" tone="positive" />
+ *   <UIRow title="Payday Boost" meta="Because your paycheck lands here." value="+$25" tone="feature" seq />
+ *
+ * tone: neutral | positive | negative | feature (accent-filled, the "hero" row) | muted
+ * `seq` makes it a step in a parent [data-sequence] demo.
+ * `icon` takes a Lucide icon name in kebab-case, or pass an svg in the "icon" slot.
+ */
+import { icons } from "@lucide/astro";
+
+interface Props {
+  title: string;
+  meta?: string;
+  value?: string;
+  valueNote?: string;
+  icon?: string;
+  tone?: "neutral" | "positive" | "negative" | "feature" | "muted";
+  check?: boolean | "done";
+  seq?: boolean;
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const { title, meta, value, valueNote, icon, tone = "neutral", check, seq = false, class: cls = "", ...rest} = Astro.props;
+
+const pascal = (s: string) => s.replace(/(^|-)(\w)/g, (_, __, c: string) => c.toUpperCase());
+const Icon = icon ? (icons as Record<string, any>)[pascal(icon)] : null;
+---
+
+<div class:list={["uir", `uir--${tone}`, cls]} {...rest} data-seq={seq ? "" : undefined}>
+  {check !== undefined && (
+    <span class:list={["uir__check", check && "is-done"]} aria-hidden="true">
+      <svg viewBox="0 0 16 16"><path d="M4 8.5l2.5 2.5L12 5.5" /></svg>
+    </span>
+  )}
+  {(Icon || Astro.slots.has("icon")) && (
+    <span class="uir__icon" aria-hidden="true">
+      <slot name="icon">{Icon && <Icon size={16} stroke-width={2} />}</slot>
+    </span>
+  )}
+  <span class="uir__text">
+    <span class="uir__title">{title}</span>
+    {meta && <span class="uir__meta">{meta}</span>}
+  </span>
+  {value && (
+    <span class="uir__value nums">
+      {value}
+      {valueNote && <span class="uir__note">{valueNote}</span>}
+    </span>
+  )}
+</div>
+
+<style>
+  .uir {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem 0.95rem;
+    border-radius: var(--radius-inner);
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-line);
+    font-size: 0.875rem;
+    line-height: 1.3;
+  }
+  .uir__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.6rem;
+    background: var(--color-accent-soft);
+    color: var(--color-accent-deep);
+  }
+  .uir__text {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+  .uir__title {
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .uir__meta {
+    color: var(--color-ink-3);
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .uir__value {
+    display: grid;
+    justify-items: end;
+    font-weight: 650;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+  .uir__note {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-ink-3);
+  }
+  .uir--positive .uir__value { color: var(--color-positive); }
+  .uir--negative .uir__value { color: var(--color-negative); }
+  .uir--muted .uir__title,
+  .uir--muted .uir__value { color: var(--color-ink-3); font-weight: 500; }
+  .uir--feature {
+    background: linear-gradient(110deg, var(--color-accent), color-mix(in oklch, var(--color-accent) 70%, oklch(60% 0.2 300)));
+    box-shadow: var(--shadow-button);
+    color: var(--color-accent-ink);
+  }
+  .uir--feature .uir__title,
+  .uir--feature .uir__value { color: var(--color-accent-ink); }
+  .uir--feature .uir__meta { color: color-mix(in oklch, var(--color-accent-ink) 82%, transparent); }
+  .uir--feature .uir__icon {
+    background: oklch(100% 0 0 / 0.18);
+    color: var(--color-accent-ink);
+  }
+
+  .uir__check {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1.5px var(--color-line-strong);
+    transition: background-color 400ms var(--ease-out), box-shadow 400ms var(--ease-out);
+  }
+  .uir__check svg {
+    width: 0.85rem;
+    fill: none;
+    stroke: var(--color-accent-ink);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 14;
+    stroke-dashoffset: 14;
+    transition: stroke-dashoffset 450ms var(--ease-out) 150ms;
+  }
+  .uir__check.is-done,
+  :global(.is-on) > .uir__check {
+    background: var(--color-accent);
+    box-shadow: none;
+  }
+  .uir__check.is-done svg,
+  :global(.is-on) > .uir__check svg {
+    stroke-dashoffset: 0;
+  }
+</style>

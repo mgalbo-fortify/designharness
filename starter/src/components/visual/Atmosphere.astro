@@ -1,0 +1,102 @@
+---
+/**
+ * Atmosphere — a fixed background layer behind the whole page. Gives the
+ * page light and depth instead of flat white. Place it in the layout's
+ * "background" slot:  <Atmosphere slot="background" variant="mesh" grain />
+ *
+ * Variants:
+ *   mesh   three soft color fields that slowly drift (Safe Start, Topper)
+ *   grid   graph paper with major/minor lines (Financial Edge)
+ *   dots   fine dot grid (technical, B2B)
+ *   plain  just the color field
+ * Colors come from --color-atmos-1/2/3, and shift per section when sections
+ * set `atmos` (see motion/atmosphere.ts). Keep it quiet: background, not art.
+ */
+interface Props {
+  variant?: "mesh" | "grid" | "dots" | "plain";
+  grain?: boolean;
+  /** Grid cell size in px (grid/dots). */
+  cell?: number;
+}
+const { variant = "mesh", grain = false, cell = 56 } = Astro.props;
+---
+
+<div
+  class:list={["atmos", `atmos--${variant}`, grain && "grain"]}
+  data-atmosphere
+  style={`--cell:${cell}px`}
+  aria-hidden="true"
+>
+  {variant === "mesh" && (
+    <>
+      <span class="atmos__blob atmos__blob--1"></span>
+      <span class="atmos__blob atmos__blob--2"></span>
+      <span class="atmos__blob atmos__blob--3"></span>
+    </>
+  )}
+</div>
+
+<style>
+  .atmos {
+    --from-1: var(--color-atmos-1);
+    --from-2: var(--color-atmos-2);
+    --from-3: var(--color-atmos-3);
+    --to-1: var(--from-1);
+    --to-2: var(--from-2);
+    --to-3: var(--from-3);
+    --t: 0;
+    --a1: color-mix(in oklch, var(--from-1), var(--to-1) calc(var(--t) * 100%));
+    --a2: color-mix(in oklch, var(--from-2), var(--to-2) calc(var(--t) * 100%));
+    --a3: color-mix(in oklch, var(--from-3), var(--to-3) calc(var(--t) * 100%));
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background: linear-gradient(170deg, var(--a1) 0%, var(--a2) 55%, var(--a3) 100%);
+  }
+
+  .atmos__blob {
+    position: absolute;
+    width: 70vmax;
+    height: 70vmax;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.55;
+    animation: drift 44s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  .atmos__blob--1 { top: -30vmax; left: -20vmax; background: radial-gradient(closest-side, var(--a1), transparent); }
+  .atmos__blob--2 { top: 10vh; right: -30vmax; background: radial-gradient(closest-side, var(--a2), transparent); animation-duration: 52s; animation-delay: -12s; }
+  .atmos__blob--3 { bottom: -35vmax; left: 10vw; background: radial-gradient(closest-side, var(--a3), transparent); animation-duration: 38s; animation-delay: -24s; }
+
+  .atmos--grid,
+  .atmos--dots {
+    background-color: var(--a1);
+  }
+  .atmos--grid::before,
+  .atmos--dots::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  .atmos--grid::before {
+    background-image:
+      linear-gradient(to right, color-mix(in oklch, var(--color-ink) 9%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklch, var(--color-ink) 9%, transparent) 1px, transparent 1px),
+      linear-gradient(to right, color-mix(in oklch, var(--color-ink) 5%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklch, var(--color-ink) 5%, transparent) 1px, transparent 1px);
+    background-size:
+      calc(var(--cell) * 4) calc(var(--cell) * 4),
+      calc(var(--cell) * 4) calc(var(--cell) * 4),
+      var(--cell) var(--cell),
+      var(--cell) var(--cell);
+    background-position: center top;
+    mask-image: linear-gradient(to bottom, #000 40%, transparent 120%);
+  }
+  .atmos--dots::before {
+    background-image: radial-gradient(color-mix(in oklch, var(--color-ink) 16%, transparent) 1px, transparent 1.5px);
+    background-size: calc(var(--cell) / 2) calc(var(--cell) / 2);
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000, transparent);
+  }
+</style>

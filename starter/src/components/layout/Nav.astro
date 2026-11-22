@@ -1,0 +1,224 @@
+---
+/**
+ * Nav — sticky header. Transparent over the hero; becomes a glass bar once
+ * the page scrolls (.is-scrolled, set by motion/nav.ts).
+ *
+ * Styles: "bar" (full width) or "pill" (floating capsule, Safe Start style).
+ * Set `hideOnScroll` for long-form pages so the nav gets out of the way.
+ */
+import { site } from "../../site.config";
+import Logo from "./Logo.astro";
+import Button from "../ui/Button.astro";
+
+interface Props {
+  variant?: "bar" | "pill";
+  hideOnScroll?: boolean;
+}
+const { variant = "bar", hideOnScroll = false } = Astro.props;
+---
+
+<header class:list={["nav", `nav--${variant}`]} data-nav data-nav-hide={hideOnScroll ? "" : undefined}>
+  <div class="nav__inner">
+    <a href="/" class="nav__brand" aria-label={`${site.name} home`}>
+      <Logo />
+    </a>
+
+    <nav class="nav__links" aria-label="Primary">
+      <ul>
+        {site.nav.map((l) => (
+          <li><a href={l.href} data-nav-link>{l.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="nav__actions">
+      {site.navSecondary && <a class="nav__secondary" href={site.navSecondary.href}>{site.navSecondary.label}</a>}
+      <Button href={site.cta.href} size="sm" track="nav" icon="none">{site.cta.label}</Button>
+      <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-panel" data-nav-toggle>
+        <span class="sr-only">Menu</span>
+        <span class="nav__burger" aria-hidden="true"><span></span><span></span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="nav__panel" id="nav-panel">
+    <ul>
+      {site.nav.map((l) => (
+        <li><a href={l.href}>{l.label}</a></li>
+      ))}
+      {site.navSecondary && <li><a href={site.navSecondary.href}>{site.navSecondary.label}</a></li>}
+    </ul>
+    <Button href={site.cta.href} size="lg" track="nav_mobile" class="w-full">{site.cta.label}</Button>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--nav-h);
+    margin-bottom: calc(var(--nav-h) * -1); /* overlays the hero */
+    transition: transform 500ms var(--ease-out);
+  }
+  .nav:global(.is-hidden) {
+    transform: translateY(-110%);
+  }
+  .nav__inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 100%;
+    max-width: calc(var(--container-wide) + var(--gutter) * 2);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    transition:
+      background-color 500ms var(--ease-out),
+      box-shadow 500ms var(--ease-out),
+      backdrop-filter 500ms var(--ease-out);
+  }
+
+  /* bar: full-width glass once scrolled */
+  .nav--bar:global(.is-scrolled) .nav__inner,
+  .nav--bar:global(.is-open) .nav__inner {
+    max-width: none;
+    padding-inline: max(var(--gutter), calc((100vw - var(--container-wide)) / 2));
+    background: color-mix(in oklch, var(--color-paper) 78%, transparent);
+    backdrop-filter: blur(18px) saturate(1.5);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    box-shadow: 0 1px 0 var(--color-line);
+  }
+
+  /* pill: floating capsule once scrolled */
+  .nav--pill {
+    padding-top: 0.75rem;
+    height: calc(var(--nav-h) + 0.75rem);
+  }
+  .nav--pill .nav__inner {
+    max-width: calc(var(--container-wide) + 1.5rem);
+    width: calc(100% - var(--gutter) * 2 + 1.5rem);
+    padding-inline: 1.25rem 0.5rem;
+    height: calc(var(--nav-h) - 0.75rem);
+    border-radius: var(--radius-chip);
+  }
+  .nav--pill:global(.is-scrolled) .nav__inner,
+  .nav--pill:global(.is-open) .nav__inner {
+    background: color-mix(in oklch, var(--color-surface) 72%, transparent);
+    backdrop-filter: blur(18px) saturate(1.5);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    box-shadow: var(--shadow-glass);
+  }
+
+  .nav__brand {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--color-ink);
+  }
+  .nav__links {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+  .nav__links ul {
+    display: flex;
+    gap: 0.25rem;
+  }
+  .nav__links a,
+  .nav__secondary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: 0.875rem;
+    border-radius: var(--radius-chip);
+    font-size: var(--text-small);
+    font-weight: 500;
+    color: var(--color-ink-2);
+    transition:
+      color var(--dur-ui) var(--ease-out),
+      background-color var(--dur-ui) var(--ease-out);
+  }
+  .nav__links a:hover,
+  .nav__secondary:hover,
+  .nav__links a[aria-current] {
+    color: var(--color-ink);
+  }
+  .nav__links a:hover {
+    background: color-mix(in oklch, var(--color-ink) 5%, transparent);
+  }
+  .nav__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+
+  .nav__toggle {
+    display: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-chip);
+    color: var(--color-ink);
+  }
+  .nav__burger {
+    display: grid;
+    gap: 6px;
+    width: 18px;
+  }
+  .nav__burger span {
+    height: 1.5px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform 400ms var(--ease-out);
+  }
+  .nav:global(.is-open) .nav__burger span:first-child {
+    transform: translateY(3.75px) rotate(45deg);
+  }
+  .nav:global(.is-open) .nav__burger span:last-child {
+    transform: translateY(-3.75px) rotate(-45deg);
+  }
+
+  .nav__panel {
+    display: none;
+  }
+
+  @media (max-width: 899px) {
+    .nav__links,
+    .nav__secondary,
+    .nav__actions :global(.btn) {
+      display: none;
+    }
+    .nav__toggle {
+      display: grid;
+    }
+    .nav__panel {
+      display: grid;
+      gap: 1.5rem;
+      position: absolute;
+      inset: 100% 0 auto 0;
+      padding: 1rem var(--gutter) 2rem;
+      background: var(--color-paper);
+      box-shadow: 0 24px 48px -24px oklch(0% 0 0 / 0.25);
+      clip-path: inset(0 0 100% 0);
+      transition: clip-path 500ms var(--ease-out);
+    }
+    .nav:global(.is-open) .nav__panel {
+      clip-path: inset(0 0 -100px 0);
+    }
+    .nav__panel ul {
+      display: grid;
+    }
+    .nav__panel a:not(:global(.btn)) {
+      display: block;
+      padding-block: 0.875rem;
+      border-bottom: 1px solid var(--color-line);
+      font-family: var(--font-display);
+      font-size: var(--text-heading);
+      font-weight: var(--font-weight-heading);
+      color: var(--color-ink);
+    }
+  }
+</style>

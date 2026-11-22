@@ -1,0 +1,24 @@
+{
+  "name": "site-harness",
+  "private": true,
+  "type": "module",
+  "description": "A Claude Code harness for designing and building high-end, motion-rich marketing websites.",
+  "workspaces": [
+    "starter",
+    "sites/*"
+  ],
+  "scripts": {
+    "new-site": "node scripts/new-site.mjs",
+    "dev": "node scripts/run.mjs dev",
+    "build": "node scripts/run.mjs build",
+    "qa": "node scripts/qa.mjs",
+    "og": "node scripts/og.mjs"
+  },
+  "devDependencies": {
+    "axe-core": "4.14.1",
+    "playwright": "1.65.1"
+  },
+  "engines": {
+    "node": ">=22.23"
+  }
+}

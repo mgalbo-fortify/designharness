@@ -1,0 +1,293 @@
+---
+/**
+ * LeadForm — an accessible, progressively enhanced form.
+ *
+ * Without JS it's a normal POST to site.forms.endpoint. With JS it submits
+ * via fetch, validates inline, shows a success state in place, tracks
+ * `form_submit`, and carries UTM/click-id attribution in hidden fields.
+ *
+ *   <LeadForm
+ *     fields={[
+ *       { name: "name", label: "Full name", autocomplete: "name", required: true },
+ *       { name: "email", label: "Work email", type: "email", autocomplete: "email", required: true },
+ *       { name: "company", label: "Company", autocomplete: "organization" },
+ *     ]}
+ *     submit="Book a call"
+ *     success="Thanks. We'll reply within one business day."
+ *   />
+ *
+ * Ask for as little as possible: every field costs conversions.
+ */
+import { site } from "../../site.config";
+import Button from "../ui/Button.astro";
+
+type Field = {
+  name: string;
+  label: string;
+  type?: "text" | "email" | "tel" | "url" | "textarea" | "select";
+  options?: string[];
+  autocomplete?: string;
+  required?: boolean;
+  placeholder?: string;
+  hint?: string;
+  half?: boolean;
+};
+interface Props {
+  fields: Field[];
+  submit?: string;
+  success?: string;
+  formName?: string;
+  consent?: string;
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const {
+  fields,
+  submit = "Submit",
+  success = "Thanks! We'll be in touch shortly.",
+  formName = "lead",
+  consent,
+  class: cls = "",
+  ...rest
+} = Astro.props;
+
+const attrKeys = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "fbclid", "referrer", "landing_page"];
+const netlify = site.forms.mode === "netlify";
+const action = netlify ? "/" : site.forms.endpoint || undefined;
+---
+
+<form
+  class:list={["lead", cls]} {...rest}
+  method="post"
+  action={action}
+  name={formName}
+  data-lead-form
+  data-netlify={netlify ? "true" : undefined}
+  netlify-honeypot={netlify ? "company_website" : undefined}
+  novalidate
+>
+  {netlify && <input type="hidden" name="form-name" value={formName} />}
+  <input type="hidden" name="form" value={formName} />
+  {attrKeys.map((k) => <input type="hidden" name={k} value="" />)}
+  <p class="lead__hp" aria-hidden="true">
+    <label>Leave this empty <input type="text" name="company_website" tabindex="-1" autocomplete="off" /></label>
+  </p>
+
+  <div class="lead__grid">
+    {fields.map((f) => {
+      const id = `${formName}-${f.name}`;
+      return (
+        <div class:list={["lead__field", f.half && "lead__field--half"]}>
+          <label for={id}>
+            {f.label}
+            {!f.required && <span class="lead__opt"> (optional)</span>}
+          </label>
+          {f.type === "textarea" ? (
+            <textarea id={id} name={f.name} rows="4" required={f.required} placeholder={f.placeholder} aria-describedby={`${id}-err`} />
+          ) : f.type === "select" ? (
+            <select id={id} name={f.name} required={f.required} aria-describedby={`${id}-err`}>
+              <option value="">Select…</option>
+              {f.options?.map((o) => <option>{o}</option>)}
+            </select>
+          ) : (
+            <input
+              id={id}
+              name={f.name}
+              type={f.type ?? "text"}
+              autocomplete={f.autocomplete}
+              required={f.required}
+              placeholder={f.placeholder}
+              aria-describedby={`${id}-err`}
+              inputmode={f.type === "email" ? "email" : f.type === "tel" ? "tel" : undefined}
+            />
+          )}
+          {f.hint && <span class="lead__hint">{f.hint}</span>}
+          <span class="lead__err" id={`${id}-err`} aria-live="polite"></span>
+        </div>
+      );
+    })}
+  </div>
+
+  {consent && <p class="lead__consent type-micro">{consent}</p>}
+
+  <div class="lead__actions">
+    <Button type="submit" size="lg" track={`form_${formName}`}>{submit}</Button>
+    <p class="lead__status type-small" role="status" aria-live="polite"></p>
+  </div>
+
+  <div class="lead__success" hidden tabindex="-1">
+    <span class="lead__tick" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M6 12.5l4 4L18 8" /></svg>
+    </span>
+    <p class="type-heading">{success}</p>
+  </div>
+</form>
+
+<script>
+  import { track } from "../../lib/analytics";
+
+  const MSG: Record<string, string> = {
+    valueMissing: "This field is required.",
+    typeMismatch: "Please check the format.",
+    patternMismatch: "Please check the format.",
+  };
+
+  document.querySelectorAll<HTMLFormElement>("[data-lead-form]").forEach((form) => {
+    const status = form.querySelector<HTMLElement>(".lead__status")!;
+    const success = form.querySelector<HTMLElement>(".lead__success")!;
+    const btn = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+
+    const validate = (el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement) => {
+      const err = form.querySelector<HTMLElement>(`#${CSS.escape(el.id)}-err`);
+      const key = (Object.keys(MSG) as (keyof ValidityState)[]).find((k) => el.validity[k]);
+      const msg = el.type === "email" && el.validity.typeMismatch ? "Enter an email like name@company.com." : key ? MSG[key] : "";
+      el.toggleAttribute("aria-invalid", !!msg);
+      if (err) err.textContent = msg;
+      return !msg;
+    };
+
+    const inputs = Array.from(form.querySelectorAll<HTMLInputElement>(".lead__field :is(input, textarea, select)"));
+    inputs.forEach((el) => el.addEventListener("blur", () => el.value && validate(el)));
+
+    form.addEventListener("submit", async (e) => {
+      const valid = inputs.map(validate).every(Boolean);
+      if (!valid) {
+        e.preventDefault();
+        inputs.find((el) => el.hasAttribute("aria-invalid"))?.focus();
+        return;
+      }
+      if (!form.action || form.dataset.netlify) return; // native POST
+      e.preventDefault();
+      btn.disabled = true;
+      status.textContent = "Sending…";
+      try {
+        const res = await fetch(form.action, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } });
+        if (!res.ok) throw new Error(String(res.status));
+        track("form_submit", { form: form.name });
+        form.classList.add("is-sent");
+        success.hidden = false;
+        success.focus();
+      } catch {
+        status.textContent = "Something went wrong. Please try again, or email us directly.";
+        btn.disabled = false;
+      }
+    });
+  });
+</script>
+
+<style>
+  .lead {
+    position: relative;
+    display: grid;
+    gap: 1.5rem;
+  }
+  .lead__hp {
+    position: absolute;
+    left: -9999px;
+  }
+  .lead__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem 1rem;
+  }
+  .lead__field {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 0.45rem;
+  }
+  @media (min-width: 640px) {
+    .lead__field--half {
+      grid-column: span 1;
+    }
+  }
+  .lead label {
+    font-size: var(--text-small);
+    font-weight: var(--font-weight-strong);
+    color: var(--color-ink);
+  }
+  .lead__opt {
+    font-weight: 400;
+    color: var(--color-ink-3);
+  }
+  .lead :is(input, textarea, select) {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.85rem 1rem;
+    border-radius: 0.75rem;
+    border: 0;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    box-shadow: inset 0 0 0 1px var(--color-line-strong);
+    transition: box-shadow var(--dur-ui) var(--ease-out);
+  }
+  .lead :is(input, textarea, select):hover {
+    box-shadow: inset 0 0 0 1px var(--color-ink-3);
+  }
+  .lead :is(input, textarea, select):focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--color-focus), 0 0 0 4px color-mix(in oklch, var(--color-focus) 20%, transparent);
+  }
+  .lead [aria-invalid] {
+    box-shadow: inset 0 0 0 2px var(--color-negative) !important;
+  }
+  .lead__hint {
+    font-size: var(--text-small);
+    color: var(--color-ink-3);
+  }
+  .lead__err {
+    font-size: var(--text-small);
+    color: var(--color-negative);
+  }
+  .lead__err:empty {
+    display: none;
+  }
+  .lead__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+  .lead__consent {
+    color: var(--color-ink-3);
+  }
+  .lead__success {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 1rem;
+    text-align: center;
+    background: inherit;
+    animation: lead-in 600ms var(--ease-out);
+  }
+  .lead.is-sent > :not(.lead__success) {
+    visibility: hidden;
+  }
+  .lead__tick {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: var(--color-positive);
+  }
+  .lead__tick svg {
+    width: 1.75rem;
+    fill: none;
+    stroke: white;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 20;
+    animation: tick 600ms var(--ease-out) 200ms both;
+  }
+  @keyframes tick {
+    from { stroke-dashoffset: 20; }
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes lead-in {
+    from { opacity: 0; transform: scale(0.97); }
+  }
+</style>

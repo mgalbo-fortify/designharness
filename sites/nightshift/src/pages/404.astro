@@ -1,0 +1,17 @@
+---
+import BaseLayout from "../components/layout/BaseLayout.astro";
+import Section from "../components/layout/Section.astro";
+import Heading from "../components/ui/Heading.astro";
+import Button from "../components/ui/Button.astro";
+---
+
+<BaseLayout title="Page not found" noindex>
+  <Section hero>
+    <div class="grid gap-6 justify-items-start">
+      <p class="type-label text-accent-deep">404</p>
+      <Heading as="h1" size="display" split="lines">This page took a different route.</Heading>
+      <p class="type-lead measure" data-reveal data-delay="300">The link may be old, or the page may have moved.</p>
+      <div data-reveal data-delay="450"><Button href="/">Back to home</Button></div>
+    </div>
+  </Section>
+</BaseLayout>

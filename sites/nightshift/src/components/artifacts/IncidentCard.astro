@@ -1,0 +1,200 @@
+---
+/**
+ * IncidentCard — the pinned artifact in "One night on the shift". One card,
+ * four states, one per chapter. Rendered once per state (StoryView on
+ * desktop, inline on mobile). Illustrative scenario (see footer legal).
+ */
+import UIWindow from "./UIWindow.astro";
+import UIRow from "./UIRow.astro";
+import Mark from "../ui/Mark.astro";
+import Counter from "../ui/Counter.astro";
+
+interface Props {
+  state: "detect" | "investigate" | "contain" | "report";
+}
+const { state } = Astro.props;
+
+const head = {
+  detect: { time: "2:14 AM", status: "New alert", label: "Sign-in risk: high" },
+  investigate: { time: "2:16 AM", status: "Investigating", label: "Analyst: Jordan R." },
+  contain: { time: "2:21 AM", status: "Contained", label: "Response complete" },
+  report: { time: "7:58 AM", status: "Report sent", label: "To: Dana, CFO" },
+}[state];
+---
+
+<UIWindow brand="Incident #2291" status={head.status} variant="ink" class:list={["incident", `incident--${state}`]} decorative>
+  <div class="incident__head">
+    <p class="incident__time nums">{head.time}</p>
+    <p class="type-micro incident__label">{head.label}</p>
+  </div>
+
+  {state === "detect" && (
+    <div class="grid gap-2">
+      <p class="incident__summary">Sign-in to the CFO's mailbox from a new country, seconds after a login prompt was approved.</p>
+      <UIRow icon="map-pin" title="Location" meta="Usual: Columbus, OH" value="Lisbon, PT" />
+      <UIRow icon="smartphone" title="MFA prompt" meta="Approved on Dana's phone" value="2:13 AM" />
+      <UIRow icon="mail" title="Mailbox" meta="dana@hartwell.example" value="Signed in" />
+      <p class="incident__flag"><span class="incident__dot" aria-hidden="true"></span>Doesn't match anything Dana has done before.</p>
+    </div>
+  )}
+
+  {state === "investigate" && (
+    <div class="grid gap-2" data-sequence data-sequence-start="350" data-sequence-interval="650">
+      <p class="incident__summary">Before anything else, Jordan checks what actually happened.</p>
+      <UIRow seq icon="bell-ring" title="14 MFA prompts in 3 minutes" meta="Classic MFA fatigue: approved by accident" />
+      <UIRow seq icon="globe" title="IP linked to a phishing kit" meta="Seen in 3 other attacks this week" />
+      <UIRow seq icon="mail-warning" title="New mailbox rule" meta="Forwards anything titled “invoice”" />
+      <p class="incident__verdict" data-seq><span>Verdict</span> Confirmed account takeover attempt</p>
+    </div>
+  )}
+
+  {state === "contain" && (
+    <div class="grid gap-2">
+      <div class="incident__elapsed">
+        <span class="type-micro">Alert to contained</span>
+        <span class="incident__minutes nums"><Counter value={7} suffix=" min" duration={1200} /></span>
+      </div>
+      <div class="grid gap-2" data-sequence data-sequence-start="250" data-sequence-interval="520">
+        <UIRow seq check title="Session signed out everywhere" value="2:18" />
+        <UIRow seq check title="Password reset, MFA re-enrolled" value="2:19" />
+        <UIRow seq check title="Forwarding rule removed" value="2:20" />
+        <UIRow seq check title="Sign-ins from Portugal blocked" value="2:21" />
+      </div>
+    </div>
+  )}
+
+  {state === "report" && (
+    <div class="incident__mail">
+      <p class="incident__subject">Handled overnight: a sign-in to your mailbox</p>
+      <p>Good morning, Dana. At 2:14 AM someone signed in to your email from Portugal after a login prompt on your phone was approved by mistake.</p>
+      <p>We locked them out at 2:21 AM. <Mark type="underline" delay={300}>Nothing was sent, deleted or forwarded.</Mark></p>
+      <p><strong>What we need from you:</strong> nothing. If you see more login prompts you didn't ask for, ignore them and reply here.</p>
+      <p class="incident__sig">Jordan, on shift for Nightshift</p>
+    </div>
+  )}
+</UIWindow>
+
+<style>
+  .incident {
+    width: 100%;
+    max-width: 30rem;
+    margin-inline: auto;
+  }
+  .incident__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .incident__time {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+  .incident__label {
+    color: var(--color-ink-3);
+  }
+  .incident__summary {
+    padding-block: 0.25rem 0.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--color-ink-2);
+  }
+  .incident :global(.uir) {
+    background: oklch(100% 0 0 / 0.04);
+  }
+  .incident--detect :global(.uiw__status) {
+    background: oklch(66% 0.17 30 / 0.2);
+    color: oklch(80% 0.12 30);
+  }
+  .incident--contain :global(.uiw__status),
+  .incident--report :global(.uiw__status) {
+    background: oklch(76% 0.14 155 / 0.18);
+    color: oklch(84% 0.12 155);
+  }
+  .incident__flag {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--radius-inner);
+    background: oklch(66% 0.17 30 / 0.14);
+    color: oklch(86% 0.08 30);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  .incident__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: oklch(70% 0.18 30);
+    animation: alert 1.2s ease-in-out infinite alternate;
+  }
+  @keyframes alert {
+    to { opacity: 0.35; }
+  }
+  .incident__verdict {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--radius-inner);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .incident__verdict span {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.75;
+  }
+  .incident__elapsed {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-block: 0.5rem;
+    color: var(--color-ink-3);
+  }
+  .incident__minutes {
+    font-family: var(--font-display);
+    font-size: 2.75rem;
+    line-height: 1;
+    color: var(--color-accent);
+  }
+  .incident :global(.uir__value) {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.8125rem;
+  }
+  .incident__mail {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.1rem 1.2rem;
+    border-radius: var(--radius-inner);
+    background: oklch(97.5% 0.01 80);
+    color: oklch(30% 0.035 268);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    --color-ink: oklch(21% 0.045 268);
+    --color-mark-line: oklch(70% 0.15 65);
+  }
+  .incident__subject {
+    font-weight: 700;
+    color: oklch(21% 0.045 268);
+  }
+  .incident__mail strong {
+    color: oklch(21% 0.045 268);
+  }
+  .incident__sig {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.05rem;
+    color: oklch(21% 0.045 268);
+  }
+</style>

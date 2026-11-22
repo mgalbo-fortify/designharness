@@ -1,0 +1,24 @@
+---
+/**
+ * StoryView — one state of the pinned stage in a <StickyStory>. The first
+ * view should be marked `initial` so it's visible before JS runs.
+ */
+interface Props {
+  id: string;
+  initial?: boolean;
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const { id, initial = false, class: cls = "", ...rest} = Astro.props;
+---
+
+<div class:list={["view", initial && "is-active", cls]} {...rest} data-story-view={id}>
+  <slot />
+</div>
+
+<style>
+  .view {
+    width: 100%;
+  }
+</style>

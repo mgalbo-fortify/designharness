@@ -1,0 +1,79 @@
+---
+/**
+ * StickyStory — scrollytelling. Chapters scroll on one side; a pinned visual
+ * on the other changes state with each chapter.
+ *
+ *   <StickyStory steps={["switch", "boost", "account"]}>
+ *     <StoryStep id="switch">…copy…</StoryStep>
+ *     <StoryStep id="boost">…copy…</StoryStep>
+ *     <StoryStep id="account">…copy…</StoryStep>
+ *     <Fragment slot="stage">
+ *       <StoryView id="switch">…artifact state…</StoryView>
+ *       <StoryView id="boost">…</StoryView>
+ *       <StoryView id="account">…</StoryView>
+ *     </Fragment>
+ *   </StickyStory>
+ *
+ * Below 900px the stage is hidden and each StoryStep shows its own `visual`
+ * slot inline, so phones get the same proof without a cramped sticky panel.
+ * Put content in BOTH places: the stage view (desktop) and the step's
+ * visual slot (mobile). Usually the same component with the same props.
+ */
+interface Props {
+  /** Stage side on desktop. */
+  side?: "right" | "left";
+  /** Grid proportions, copy : stage. */
+  ratio?: "7/5" | "6/6" | "5/7";
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const { side = "right", ratio = "6/6", class: cls = "", ...rest} = Astro.props;
+const [a, b] = ratio.split("/");
+---
+
+<div class:list={["story", `story--${side}`, cls]} {...rest} data-story style={`--copy:${a}fr;--stage:${b}fr`}>
+  <div class="story__steps">
+    <slot />
+  </div>
+  <div class="story__stage" aria-hidden="true">
+    <div class="story__frame">
+      <slot name="stage" />
+    </div>
+  </div>
+</div>
+
+<style>
+  .story {
+    display: grid;
+    gap: clamp(2rem, 1rem + 4vw, 6rem);
+  }
+  @media (min-width: 900px) {
+    .story {
+      grid-template-columns: var(--copy) var(--stage);
+      align-items: start;
+    }
+    .story--left .story__stage {
+      order: -1;
+    }
+    .story__stage {
+      position: sticky;
+      top: calc(var(--nav-h) + max(1rem, (100svh - var(--nav-h) - var(--stage-h, 34rem)) / 2));
+      height: var(--stage-h, 34rem);
+    }
+    .story__frame {
+      position: relative;
+      display: grid;
+      height: 100%;
+      align-items: center;
+    }
+    .story__frame > :global([data-story-view]) {
+      grid-area: 1 / 1;
+    }
+  }
+  @media (max-width: 899px) {
+    .story__stage {
+      display: none;
+    }
+  }
+</style>

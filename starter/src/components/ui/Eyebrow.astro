@@ -1,0 +1,55 @@
+---
+/**
+ * Eyebrow — the small label above a section heading. Use it to orient
+ * ("How it works", "02 — Protection"), not to repeat the headline.
+ * Optional `index` renders a chapter number; `dot` renders a live-status dot.
+ */
+interface Props {
+  index?: string | number;
+  dot?: boolean;
+  reveal?: string | false;
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const { index, dot = false, reveal = "fade", class: cls = "", ...rest} = Astro.props;
+---
+
+<p class:list={["eyebrow type-label", cls]} {...rest} data-reveal={reveal || undefined}>
+  {dot && <span class="eyebrow__dot" aria-hidden="true"></span>}
+  {index != null && <span class="eyebrow__index nums">{String(index).padStart(2, "0")}</span>}
+  <span><slot /></span>
+</p>
+
+<style>
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--eyebrow-color, var(--color-accent-deep));
+  }
+  .eyebrow__index {
+    font-family: var(--font-mono);
+    letter-spacing: 0;
+    color: var(--color-ink-3);
+  }
+  .eyebrow__dot {
+    position: relative;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .eyebrow__dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    animation: ping 2.4s var(--ease-out) infinite;
+  }
+  @keyframes ping {
+    0% { transform: scale(1); opacity: 0.6; }
+    70%, 100% { transform: scale(3); opacity: 0; }
+  }
+</style>

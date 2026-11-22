@@ -1,0 +1,86 @@
+---
+/**
+ * Section — the vertical rhythm unit. Every page section uses it.
+ *
+ *   <Section id="how" name="how_it_works">…</Section>
+ *   <Section tone="dark" pad="lg">…</Section>
+ *   <Section hero>…</Section>          clears the overlaid nav, fills the viewport
+ *   <Section atmos="oklch(…) | oklch(…) | oklch(…)">  shifts the <Atmosphere> colors
+ *
+ * `name` sends a section_view analytics event the first time it's seen.
+ * Content is wrapped in a container unless width="bleed".
+ */
+interface Props {
+  id?: string;
+  name?: string;
+  tone?: "default" | "sunken" | "dark" | "accent" | "transparent";
+  pad?: "none" | "sm" | "md" | "lg";
+  width?: "default" | "wide" | "narrow" | "bleed";
+  hero?: boolean;
+  atmos?: string;
+  class?: string;
+  innerClass?: string;
+  labelledby?: string;
+  /** Anything else (e.g. the parent's scoped-style attribute Astro passes in). */
+  [key: string]: unknown;
+}
+const {
+  id,
+  name,
+  tone = "transparent",
+  pad = "md",
+  width = "default",
+  hero = false,
+  atmos,
+  class: cls = "",
+  innerClass = "",
+  labelledby,
+  ...rest
+} = Astro.props;
+
+const container = width === "bleed" ? "" : width === "wide" ? "container-wide" : width === "narrow" ? "container-narrow" : "container-site";
+---
+
+<section
+  id={id}
+  class:list={[
+    "section",
+    `section--pad-${pad}`,
+    tone === "dark" && "tone-dark",
+    tone === "accent" && "tone-accent",
+    tone !== "transparent" && `section--bg`,
+    tone === "sunken" && "section--sunken",
+    hero && "section--hero",
+    cls,
+  ]}
+  data-section={name}
+  data-atmos={atmos}
+  aria-labelledby={labelledby}
+  {...rest}
+>
+  {container ? <div class:list={[container, innerClass]}><slot /></div> : <slot />}
+</section>
+
+<style>
+  .section {
+    position: relative;
+  }
+  .section--bg {
+    background: var(--color-paper);
+    color: var(--color-ink-2);
+  }
+  .section--sunken {
+    background: var(--color-sunken);
+  }
+  .section--pad-sm { padding-block: calc(var(--space-section) * 0.5); }
+  .section--pad-md { padding-block: var(--space-section); }
+  .section--pad-lg { padding-block: calc(var(--space-section) * 1.35); }
+
+  .section--hero {
+    min-height: min(100svh, 62rem);
+    display: grid;
+    align-items: center;
+    padding-top: calc(var(--nav-h) + clamp(2rem, 1rem + 4vw, 5rem));
+    padding-bottom: clamp(3rem, 2rem + 4vw, 6rem);
+  }
+</style>

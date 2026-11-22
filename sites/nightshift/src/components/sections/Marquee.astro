@@ -1,0 +1,72 @@
+---
+/**
+ * Marquee — an endless horizontal strip (logos, short proof points,
+ * integrations). Content is rendered twice; the second copy is aria-hidden.
+ * Pauses on hover, when motion is paused, and is static under reduced motion.
+ *
+ *   <Marquee speed={40}><span>FDIC insured</span><span>No monthly fees</span>…</Marquee>
+ *
+ * speed = seconds per loop (higher is slower). Edges fade out.
+ */
+interface Props {
+  speed?: number;
+  gap?: string;
+  reverse?: boolean;
+  label?: string;
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const { speed = 40, gap = "3rem", reverse = false, label, class: cls = "", ...rest} = Astro.props;
+---
+
+<div
+  class:list={["marquee", reverse && "marquee--reverse", cls]} {...rest}
+  style={`--marquee-gap:${gap};--marquee-speed:${speed}s`}
+  role={label ? "region" : undefined}
+  aria-label={label}
+>
+  <div class="marquee__track">
+    <div class="marquee__group"><slot /></div>
+    <div class="marquee__group" aria-hidden="true"><slot /></div>
+  </div>
+</div>
+
+<style>
+  .marquee {
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  }
+  .marquee__track {
+    display: flex;
+    gap: var(--marquee-gap);
+    width: max-content;
+    animation: marquee var(--marquee-speed) linear infinite;
+  }
+  .marquee--reverse .marquee__track {
+    animation-direction: reverse;
+  }
+  .marquee:hover .marquee__track {
+    animation-play-state: paused;
+  }
+  .marquee__group {
+    display: flex;
+    align-items: center;
+    gap: var(--marquee-gap);
+    flex: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+      width: auto;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .marquee__group[aria-hidden] {
+      display: none;
+    }
+    .marquee {
+      mask-image: none;
+    }
+  }
+</style>

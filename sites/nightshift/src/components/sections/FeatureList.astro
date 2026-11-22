@@ -1,0 +1,80 @@
+---
+/**
+ * FeatureList — features as a quiet, divided list (icon, title, one line)
+ * rather than a wall of identical cards. Two columns on desktop.
+ *
+ *   <FeatureList items={[{ icon: "wallet", title: "Everything in one place", body: "…" }]} />
+ *
+ * Icons: Lucide names in kebab-case (lucide.dev). Keep bodies to one or two lines.
+ */
+import { icons } from "@lucide/astro";
+
+interface Props {
+  items: { icon?: string; title: string; body: string }[];
+  columns?: 1 | 2 | 3;
+  /** Heading level for item titles; match the page outline (h3 under an h2). */
+  headingLevel?: "h3" | "h4";
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const { items, columns = 2, headingLevel: H = "h3", class: cls = "", ...rest} = Astro.props;
+const pascal = (s: string) => s.replace(/(^|-)(\w)/g, (_, __, c: string) => c.toUpperCase());
+---
+
+<ul class:list={["features", cls]} {...rest} style={`--cols:${columns}`} data-reveal-group data-stagger="70">
+  {items.map((f) => {
+    const Icon = f.icon ? (icons as Record<string, any>)[pascal(f.icon)] : null;
+    return (
+      <li class="features__item" data-reveal>
+        {Icon && (
+          <span class="features__icon" aria-hidden="true">
+            <Icon size={18} stroke-width={1.75} />
+          </span>
+        )}
+        <div>
+          <H class="features__title">{f.title}</H>
+          <p class="features__body type-small">{f.body}</p>
+        </div>
+      </li>
+    );
+  })}
+</ul>
+
+<style>
+  .features {
+    display: grid;
+    column-gap: clamp(2rem, 1rem + 3vw, 4rem);
+  }
+  @media (min-width: 768px) {
+    .features {
+      grid-template-columns: repeat(var(--cols), 1fr);
+    }
+  }
+  .features__item {
+    display: flex;
+    gap: 1rem;
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .features__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.75rem;
+    background: var(--color-accent-soft);
+    color: var(--color-accent-deep);
+  }
+  .features__title {
+    font-weight: var(--font-weight-strong);
+    font-size: 1.0625rem;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+  }
+  .features__body {
+    margin-top: 0.3rem;
+    color: var(--color-ink-2);
+  }
+</style>
