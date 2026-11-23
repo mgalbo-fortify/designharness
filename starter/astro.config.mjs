@@ -44,10 +44,14 @@ const fonts = [
   },
 ];
 
+/** `npm run export-html` builds a one-file preview into its own folder, leaving dist/ untouched. */
+const exporting = process.env.HARNESS_EXPORT === "1";
+
 export default defineConfig({
   // Production URL (canonical links, sitemap, OG tags). Keep in sync with site.config.ts.
   site: "https://example.com",
   trailingSlash: "ignore",
+  outDir: exporting ? "./.export-build" : "./dist",
   integrations: [
     sitemap({ filter: (page) => !page.includes("/styleguide") }),
   ],

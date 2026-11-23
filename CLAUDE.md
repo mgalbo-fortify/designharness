@@ -32,6 +32,7 @@ npm run dev -- <slug>               # dev server
 npm run build -- <slug>             # static build → sites/<slug>/dist
 npm run qa -- <slug> [--quick] [--pages=/,/pricing/] [--no-build]
 npm run og -- <slug>                # social image from the hero → public/og.png
+npm run export-html -- <slug>       # one self-contained .html preview → sites/<slug>/export/
 ```
 
 QA writes `sites/<slug>/qa/report.md` plus screenshots. Always look at the

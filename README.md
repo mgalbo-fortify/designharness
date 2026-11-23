@@ -37,6 +37,7 @@ npm run new-site -- acme "Acme"     # scaffold sites/acme
 npm run dev -- acme                 # live preview at localhost:4321
 npm run qa -- acme                  # build + screenshots + checks → sites/acme/qa/report.md
 npm run og -- acme                  # social share image from the hero
+npm run export-html -- acme         # single-file .html preview to email or open from disk
 npm run build -- acme               # deploy sites/acme/dist anywhere static
 ```
 

@@ -17,8 +17,8 @@ export function resolveSite(arg) {
   return dir;
 }
 
-export function build(dir) {
-  const r = spawnSync("npx", ["astro", "build"], { cwd: dir, stdio: "inherit", env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" } });
+export function build(dir, env = {}) {
+  const r = spawnSync("npx", ["astro", "build"], { cwd: dir, stdio: "inherit", env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1", ...env } });
   if (r.status !== 0) throw new Error("Build failed. Fix the errors above, then run QA again.");
 }
 

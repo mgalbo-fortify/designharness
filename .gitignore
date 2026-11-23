@@ -1,5 +1,7 @@
 node_modules/
 dist/
+.export-build/
+sites/*/export/
 .astro/
 .DS_Store
 *.log
