@@ -2,8 +2,9 @@
 /**
  * LeadForm — an accessible, progressively enhanced form.
  *
- * Without JS it's a normal POST to site.forms.endpoint. With JS it submits
- * via fetch, validates inline, shows a success state in place, tracks
+ * Without JS it's a normal POST (to site.forms.endpoint, or to Netlify Forms
+ * when site.forms.mode is "netlify"). With JS it submits in the background,
+ * validates inline, shows a success state in place, tracks
  * `form_submit`, and carries UTM/click-id attribution in hidden fields.
  *
  *   <LeadForm
@@ -157,12 +158,27 @@ const action = netlify ? "/" : site.forms.endpoint || undefined;
         inputs.find((el) => el.hasAttribute("aria-invalid"))?.focus();
         return;
       }
-      if (!form.action || form.dataset.netlify) return; // native POST
       e.preventDefault();
+      const netlify = form.dataset.netlify === "true";
+      const endpoint = form.getAttribute("action");
+      if (!netlify && !endpoint) {
+        // site.config forms.endpoint isn't set yet: say so instead of failing silently.
+        status.textContent = "This form isn't connected yet. Please email us directly.";
+        console.warn("[LeadForm] Set site.config forms.endpoint, or forms.mode = \"netlify\".");
+        return;
+      }
       btn.disabled = true;
       status.textContent = "Sending…";
       try {
-        const res = await fetch(form.action, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } });
+        // Netlify Forms takes URL-encoded posts to "/" (form-name field identifies the form).
+        const data = new FormData(form);
+        const res = netlify
+          ? await fetch("/", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams(data as unknown as Record<string, string>).toString(),
+            })
+          : await fetch(endpoint!, { method: "POST", body: data, headers: { Accept: "application/json" } });
         if (!res.ok) throw new Error(String(res.status));
         track("form_submit", { form: form.name });
         form.classList.add("is-sent");

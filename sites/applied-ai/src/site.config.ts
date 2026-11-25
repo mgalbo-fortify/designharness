@@ -86,7 +86,7 @@ export const site = {
 
   forms: {
     endpoint: "",
-    mode: "fetch" as "fetch" | "netlify",
+    mode: "netlify" as "fetch" | "netlify",
   },
 } as const;
 
