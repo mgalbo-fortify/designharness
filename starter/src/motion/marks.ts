@@ -79,6 +79,7 @@ function pathEl(d: string, stroke: string, width: number, opts: { cap?: string; 
 function build(kind: Kind, lines: Box[], rnd: () => number, color: string): SVGPathElement[] {
   const j = (amt: number) => (rnd() - 0.5) * 2 * amt;
   const out: SVGPathElement[] = [];
+  if (!lines.length) return out; // not rendered at this width (e.g. inside display:none)
 
   if (kind === "highlight") {
     for (const l of lines) {

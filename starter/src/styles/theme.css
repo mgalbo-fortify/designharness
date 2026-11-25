@@ -138,7 +138,10 @@
 }
 
 /* --------------------------------------------------------------------------
-   TONES — sections can flip their palette. Utilities read the same variables,
+   TONES — sections can flip their palette.
+   If a site sets --accent-word-color (or any token defined as var(...)) at
+   :root, re-declare it inside each tone: custom properties resolve where
+   they're declared, so the dark tone won't pick up its own --color-* values. Utilities read the same variables,
    so everything inside a dark section adapts without extra classes.
    -------------------------------------------------------------------------- */
 .tone-dark {
