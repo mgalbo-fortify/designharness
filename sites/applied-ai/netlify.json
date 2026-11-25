@@ -1,0 +1,6 @@
+{
+  "comment": "Netlify site for this project. Redeploy by zipping dist/ and POSTing it to /api/v1/sites/<siteId>/deploys (Content-Type: application/zip).",
+  "siteName": "withappliedai",
+  "siteId": "69062622-545c-48a6-bea8-2f8e5ca2404b",
+  "url": "https://withappliedai.netlify.app"
+}
