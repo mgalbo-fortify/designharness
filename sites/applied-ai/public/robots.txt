@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://appliedaiassociates.example/sitemap-index.xml
+Sitemap: https://withappliedai.com/sitemap-index.xml

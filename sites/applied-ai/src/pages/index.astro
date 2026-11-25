@@ -1,6 +1,6 @@
 ---
 /**
- * Applied AI Associates — "Drawn to spec". See design/strategy.md and concept.md.
+ * Applied AI — "Drawn to spec". See design/strategy.md and concept.md.
  */
 import BaseLayout from "../components/layout/BaseLayout.astro";
 import Section from "../components/layout/Section.astro";
@@ -30,11 +30,11 @@ const method = [
     body: "We sit with your team, map the work that happens behind the scenes, and check the tools you already pay for. You get a clear picture of where AI helps, where it doesn't, and where a simpler fix is better.",
   },
   {
-    id: "recommend" as const,
+    id: "design" as const,
     n: "02",
-    name: "Recommend",
-    title: "Choose platforms on the merits.",
-    body: "We start with what you already own and recommend new software only when it earns its place. We're vendor-neutral, we explain every cost before you decide, and subscriptions are billed by the vendor, never marked up.",
+    name: "Design",
+    title: "Design it around how you work.",
+    body: "We design the workflow around the way your people already work, then choose what runs it: the tools you already own first, new software only when it earns its place. We're vendor-neutral, and subscriptions are billed by the vendor, never marked up.",
   },
   {
     id: "build" as const,
@@ -149,9 +149,9 @@ const ladder = [
 ---
 
 <BaseLayout
-  title="Applied AI Associates · AI adoption and development for firms"
+  title="Applied AI · AI adoption and development for firms"
   rawTitle
-  description="We help firms understand where AI fits, choose the right platforms, and build workflows inside the tools they already use. Fixed fees. Your people stay in charge."
+  description="We sit with your team to learn how your firm works, then design and build AI workflows inside the tools you already use. Fixed fees. Your people stay in charge."
 >
   <Atmosphere slot="background" variant="grid" cell={40} />
 
@@ -159,12 +159,12 @@ const ladder = [
   <Section hero name="hero" width="wide" class="hero">
     <div class="hero__grid">
       <div class="hero__copy">
-        <Eyebrow reveal="fade">AI adoption and development · {f.region}</Eyebrow>
+        <Eyebrow reveal="fade">AI adoption and development for firms</Eyebrow>
         <Heading as="h1" size="display" split="lines" delay={80}>
           AI, <em>applied</em> to the work your firm actually does.
         </Heading>
         <p class="type-lead measure" data-reveal data-delay="380">
-          We help you understand where AI fits, choose the right platforms, and build workflows inside the tools you already use. Your people stay in charge of every result.
+          We sit with your team to learn how the work really gets done, then design and build AI workflows inside the tools you already use. Your people stay in charge of every result.
         </p>
         <div class="hero__actions" data-reveal data-delay="520">
           <Button href={site.cta.href} size="lg" track="hero">{site.cta.label}</Button>
@@ -274,6 +274,10 @@ const ladder = [
       </div>
       <ol class="std" data-reveal-group data-stagger="100">
         <li data-reveal>
+          <h3>We work alongside your team.</h3>
+          <p>We're based in {f.region} and work in person. We sit with the people doing the work, learn what they actually do all day, and build around it.</p>
+        </li>
+        <li data-reveal>
           <h3>Your people stay in charge.</h3>
           <p>AI prepares; a person on your team reviews and decides. Client conversations stay with your people.</p>
         </li>
@@ -282,12 +286,8 @@ const ladder = [
           <p>We set AI up inside business-grade tools your firm controls, so client and company data never ends up in public chatbots.</p>
         </li>
         <li data-reveal>
-          <h3>Use what you own first.</h3>
-          <p>We check the software you already pay for before suggesting anything new, and tell you plainly when a simpler process is the better fix.</p>
-        </li>
-        <li data-reveal>
           <h3>Fixed fees, no markups.</h3>
-          <p>Scope and price agreed in writing up front. Software subscriptions are billed by the vendor, not by us.</p>
+          <p>Scope and price agreed in writing up front. We check the software you already own before suggesting anything new, and subscriptions are billed by the vendor, not by us.</p>
         </li>
       </ol>
     </div>
@@ -303,13 +303,13 @@ const ladder = [
       <figure class="letter" data-reveal="rise">
         <blockquote>
           <p>I've spent my career helping businesses use technology safely. Today I'm helping a window and door company put AI to work across sales, operations and the back office.</p>
-          <p>When you engage Applied AI Associates, you work with me directly. I'll come on site when it helps, and I'll tell you plainly when something isn't worth automating.</p>
+          <p>When you engage Applied AI, you work with me directly, in your office and alongside your team. I'll sit with the people doing the work, and I'll tell you plainly when something isn't worth automating.</p>
         </blockquote>
         <figcaption>
           <span class="letter__sig">{f.founder}</span>
-          <span class="letter__role">{f.founderTitle}, Applied AI Associates</span>
+          <span class="letter__role">{f.founderTitle}, Applied AI</span>
         </figcaption>
-        <p class="letter__area">{f.serviceArea}</p>
+        <p class="letter__area">Based in {f.region} · On site across {f.serviceArea}</p>
       </figure>
     </div>
   </Section>

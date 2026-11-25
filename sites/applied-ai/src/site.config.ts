@@ -10,12 +10,12 @@
 export type NavLink = { label: string; href: string };
 
 export const site = {
-  name: "Applied AI Associates",
-  legalName: "Applied AI Associates",
-  url: "https://appliedaiassociates.example",
-  titleTemplate: "%s · Applied AI Associates",
+  name: "Applied AI",
+  legalName: "Applied AI",
+  url: "https://withappliedai.com",
+  titleTemplate: "%s · Applied AI",
   description:
-    "Applied AI Associates helps firms understand where AI fits, choose the right platforms, and build workflows inside the tools they already use. Fixed fees. Your people stay in charge.",
+    "Applied AI sits with your team to learn how your firm works, then designs and builds AI workflows inside the tools you already use. Fixed fees. Your people stay in charge.",
   locale: "en_US",
   themeColor: "#f7f6f2",
 
@@ -39,7 +39,7 @@ export const site = {
     introCallMinutes: 20,
     founder: "Mike",
     founderTitle: "Founder",
-    region: "Fairfield County, CT",
+    region: "Connecticut",
     serviceArea: "Fairfield County, Westchester, North Jersey and New York City",
     followUpDays: 30,
   },

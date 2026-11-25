@@ -1,4 +1,4 @@
-# Brief — Applied AI Associates
+# Brief — Applied AI
 
 ## Snapshot
 - **What it is:** A founder-led AI adoption and development firm. Helps firms understand AI, recommends the right platforms, builds custom workflows inside the tools they already use, trains their people, and keeps it running.
@@ -35,7 +35,7 @@
 - Founder background (career helping businesses use technology safely); a current engagement with a window and door company across sales, operations and back office. No testimonials, logos or numbers yet. **Target list is prospects only and is not shown.**
 
 ## Brand
-- **Existing assets:** none for Applied AI Associates.
+- **Existing assets:** none for Applied AI.
 - **Personality:** precise, senior, plain-spoken.
 - **Must avoid:** Many Hands' playfulness (illustrated characters, pastel storefronts), AI clichés (glowing brains, neural nets, robots, purple gradients, sparkles).
 
@@ -43,7 +43,7 @@
 - The light-touch entry offer is an "AI Assessment" (fixed fee, about two weeks, written roadmap). Alternatives are listed in the hand-off for the user to choose.
 - Contact is a form on the page; no scheduling link yet.
 - Founder named "Mike" (first name only until the user supplies a full name and photo).
-- Domain placeholder `appliedaiassociates.example`.
+- Domain: `withappliedai.com`.
 - Workflow examples and all figures inside product artifacts are illustrative and labelled as such.
 
 ## Needed from the user (before launch)
@@ -51,3 +51,9 @@
 - Founder full name, title, headshot; contact email; LinkedIn.
 - Form endpoint (or Netlify forms), analytics IDs, domain.
 - Any client results or quotes they're allowed to publish.
+
+## Revision 1 (user feedback)
+- Name: **Applied AI** (not "Applied AI Associates"). Domain: withappliedai.com.
+- Method stages: Understand → **Design** → Build → Run (Design replaces Recommend; platform choice now sits inside Design).
+- No location in the hero. Local, in-person work is stated in Standards ("We work alongside your team", based in Connecticut) and the founder letter.
+- **Name risk flagged:** "Applied AI" (applied-ai.com, New York, AI consulting since 2015) offers overlapping services. Trademark clearance recommended before launch.

@@ -15,7 +15,7 @@ interface Props {
   /** Forwarded to the root (incl. the parent's scoped-style attribute). */
   [key: string]: unknown;
 }
-const { sheet, title, rev = "A", project = "Applied AI Associates", grid = true, class: cls = "", ...rest } = Astro.props;
+const { sheet, title, rev = "A", project = "Applied AI", grid = true, class: cls = "", ...rest } = Astro.props;
 ---
 
 <figure class:list={["sheet", grid && "sheet--grid", cls]} {...rest}>

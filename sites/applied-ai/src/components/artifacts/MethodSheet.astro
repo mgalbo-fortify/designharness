@@ -1,7 +1,7 @@
 ---
 /**
  * MethodSheet — the pinned artifact in the Method story. One drawing set,
- * four sheets: Understand → Recommend → Build → Run. Each sheet demonstrates
+ * four sheets: Understand → Design → Build → Run. Each sheet demonstrates
  * its chapter, and each ends with a red-pen review mark (a person signs off).
  * Rendered per StoryView on desktop and inline per step on mobile.
  * Illustrative data (see footer legal).
@@ -11,7 +11,7 @@ import Counter from "../ui/Counter.astro";
 import Mark from "../ui/Mark.astro";
 
 interface Props {
-  state: "understand" | "recommend" | "build" | "run";
+  state: "understand" | "design" | "build" | "run";
 }
 const { state } = Astro.props;
 
@@ -33,7 +33,7 @@ const platforms = [
 
 const sheets = {
   understand: { sheet: "A-101", title: "Where the week goes" },
-  recommend: { sheet: "A-102", title: "Platform recommendation" },
+  design: { sheet: "A-102", title: "Solution design" },
   build: { sheet: "A-103", title: "Intake workflow, tested" },
   run: { sheet: "A-104", title: "Results and ownership" },
 }[state];
@@ -59,9 +59,9 @@ const sheets = {
     </div>
   )}
 
-  {state === "recommend" && (
+  {state === "design" && (
     <div class="ms">
-      <p class="ms__kicker">Start with what you own</p>
+      <p class="ms__kicker">What runs where · start with what you own</p>
       <ul class="plat" data-sequence data-sequence-start="250" data-sequence-interval="260" data-sequence-hold="0">
         {platforms.map((p) => (
           <li class:list={["plat__row", `plat__row--${p.tone}`]} data-seq>

@@ -1,4 +1,4 @@
-# Concept — Applied AI Associates
+# Concept — Applied AI
 
 ## Three directions
 
@@ -55,4 +55,4 @@ Display Instrument Serif 400 (+ italic) at up to 96px, −0.02em, line-height 0.
 - **Ambient:** none. The grid is static. Calm is the point.
 
 ### Hero
-Paper with a faint drafting grid. Left (7fr): eyebrow "AI adoption and development · Fairfield County, CT"; headline "AI, *applied* to the work your firm actually does."; subhead; CTA "Book a free 20-minute call" + link "See how we engage"; a mono line "Fixed fees, agreed in writing before work begins." Right (5fr): sheet WF-01 "New client intake": six steps traced in sequence from 1.2s, the review step gets a red-pen circle and "Approved · K. Lin", and the title block reads "Applied AI Associates · WF-01 · Rev A". Labelled illustrative.
+Paper with a faint drafting grid. Left (7fr): eyebrow "AI adoption and development · Fairfield County, CT"; headline "AI, *applied* to the work your firm actually does."; subhead; CTA "Book a free 20-minute call" + link "See how we engage"; a mono line "Fixed fees, agreed in writing before work begins." Right (5fr): sheet WF-01 "New client intake": six steps traced in sequence from 1.2s, the review step gets a red-pen circle and "Approved · K. Lin", and the title block reads "Applied AI · WF-01 · Rev A". Labelled illustrative.
