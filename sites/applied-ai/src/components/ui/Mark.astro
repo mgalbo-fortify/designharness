@@ -1,0 +1,28 @@
+---
+/**
+ * Mark — a hand-drawn annotation around inline text.
+ *   <Mark>the money you're missing</Mark>               highlighter (default)
+ *   <Mark type="circle" delay={400}>$3,200</Mark>
+ *   <Mark type="underline" color="var(--color-accent)">every payday</Mark>
+ * Use one or two per screen at most: a mark says "this is the point".
+ */
+interface Props {
+  type?: "highlight" | "underline" | "circle" | "strike" | "box";
+  delay?: number;
+  color?: string;
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const { type = "highlight", delay, color, class: cls = "", ...rest} = Astro.props;
+---
+
+<span class:list={["mark", cls]} {...rest} data-mark={type} data-delay={delay} data-mark-color={color}><slot /></span>
+
+<style>
+  .mark {
+    position: relative;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+</style>

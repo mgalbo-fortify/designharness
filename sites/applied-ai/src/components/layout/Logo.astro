@@ -1,0 +1,52 @@
+---
+/**
+ * Applied AI Associates: a drafting mark. A square sheet with a corner
+ * registration tick and an "A" built from two strokes and a crossbar,
+ * set beside a serif wordmark. Inline SVG; adapts to dark sections.
+ */
+import { site } from "../../site.config";
+interface Props {
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const { class: cls = "", ...rest } = Astro.props;
+---
+
+<span class:list={["logo", cls]} {...rest}>
+  <svg class="logo__mark" viewBox="0 0 28 28" width="28" height="28" aria-hidden="true">
+    <rect x="1.5" y="1.5" width="25" height="25" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
+    <path d="M8.5 21 14 7l5.5 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path>
+    <path d="M10.6 16h6.8" stroke="var(--color-pop)" stroke-width="1.6"></path>
+    <path d="M21 1.5v3M26.5 7h-3" stroke="currentColor" stroke-width="1.2"></path>
+  </svg>
+  <span class="logo__word">Applied AI <span class="logo__sub">Associates</span></span>
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--color-ink);
+  }
+  .logo__mark {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  .logo__word {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .logo__sub {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+    margin-left: 0.15rem;
+    vertical-align: 0.2em;
+  }
+</style>

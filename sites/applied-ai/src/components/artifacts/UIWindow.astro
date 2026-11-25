@@ -1,0 +1,213 @@
+---
+/**
+ * UIWindow — the "product artifact" shell: a believable piece of the
+ * product (an app card, dashboard panel, statement, notification) used as
+ * the hero visual and as proof throughout the page. This replaces stock
+ * photography. See harness/design/artifacts.md for how to make them convincing.
+ *
+ *   <UIWindow brand="Topper" status="Payday" variant="glass">
+ *     <p class="type-small">Checking balance</p>
+ *     <p class="type-title nums"><Counter value={5837.4} format={{style:"currency",currency:"USD"}} /></p>
+ *     <UIRow … />
+ *   </UIWindow>
+ *
+ * Variants: glass (needs a colorful backdrop), surface, paper (flat, hairline,
+ * editorial), ink (dark UI). `chrome="browser"` adds a browser bar for web apps.
+ * Mark decorative artifacts aria-hidden when the adjacent copy already says it.
+ */
+interface Props {
+  brand?: string;
+  status?: string;
+  variant?: "glass" | "surface" | "paper" | "ink";
+  chrome?: "app" | "browser" | "none";
+  url?: string;
+  progress?: { total: number; current: number };
+  tilt?: boolean;
+  decorative?: boolean;
+  class?: string;
+}
+const {
+  brand,
+  status,
+  variant = "surface",
+  chrome = "app",
+  url = "app.example.com",
+  progress,
+  tilt = false,
+  decorative = false,
+  class: cls = "",
+} = Astro.props;
+---
+
+<div class:list={["uiw", `uiw--${variant}`, cls]} data-tilt={tilt ? "5" : undefined} aria-hidden={decorative ? "true" : undefined}>
+  {chrome === "browser" && (
+    <div class="uiw__browser">
+      <span class="uiw__lights"><i></i><i></i><i></i></span>
+      <span class="uiw__url type-micro">{url}</span>
+    </div>
+  )}
+  {chrome === "app" && (brand || status) && (
+    <div class="uiw__bar">
+      {brand && (
+        <span class="uiw__brand">
+          <slot name="logo"><span class="uiw__dot" aria-hidden="true"></span></slot>
+          {brand}
+        </span>
+      )}
+      {status && (
+        <span class="uiw__status type-micro"><span class="uiw__pulse" aria-hidden="true"></span>{status}</span>
+      )}
+    </div>
+  )}
+  <div class="uiw__body">
+    <slot />
+  </div>
+  {progress && (
+    <div class="uiw__progress" aria-hidden="true">
+      {Array.from({ length: progress.total }, (_, i) => <span class:list={[i === progress.current && "is-on"]}></span>)}
+    </div>
+  )}
+  <span class="uiw__glare" aria-hidden="true"></span>
+</div>
+
+<style>
+  .uiw {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-artifact);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    isolation: isolate;
+  }
+  .uiw--surface {
+    background: var(--color-surface);
+    box-shadow: var(--shadow-hairline), var(--shadow-lift);
+  }
+  .uiw--glass {
+    background:
+      radial-gradient(140% 90% at 0% 0%, oklch(100% 0 0 / 0.8), transparent 55%),
+      linear-gradient(180deg, oklch(100% 0 0 / 0.82), oklch(100% 0 0 / 0.68));
+    backdrop-filter: blur(22px) saturate(1.6);
+    -webkit-backdrop-filter: blur(22px) saturate(1.6);
+    box-shadow: var(--shadow-glass);
+  }
+  .uiw--paper {
+    background: var(--color-surface);
+    border-radius: calc(var(--radius-artifact) * 0.35);
+    box-shadow: inset 0 0 0 1px var(--color-line-strong), 0 1px 2px oklch(0% 0 0 / 0.05), 0 18px 40px -24px oklch(0% 0 0 / 0.25);
+  }
+  .uiw--ink {
+    --color-ink: oklch(97% 0.005 262);
+    --color-ink-2: oklch(80% 0.015 262);
+    --color-ink-3: oklch(68% 0.015 262);
+    --color-line: oklch(100% 0 0 / 0.1);
+    --color-surface: oklch(26% 0.02 262);
+    background: oklch(20% 0.02 262);
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.08), var(--shadow-lift);
+  }
+
+  .uiw__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.15rem 1.4rem 0;
+  }
+  .uiw__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-display);
+    font-weight: 650;
+    font-size: 0.95rem;
+    letter-spacing: -0.02em;
+  }
+  .uiw__dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50% 50% 50% 4px;
+    background: var(--color-accent);
+  }
+  .uiw__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: var(--radius-chip);
+    background: var(--color-accent-soft);
+    color: var(--color-accent-deep);
+    font-weight: 600;
+  }
+  .uiw__pulse {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .uiw__browser {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--color-line);
+    background: color-mix(in oklch, var(--color-sunken) 70%, transparent);
+  }
+  .uiw__lights {
+    display: flex;
+    gap: 0.35rem;
+  }
+  .uiw__lights i {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--color-line-strong);
+  }
+  .uiw__url {
+    flex: 1;
+    max-width: 18rem;
+    margin-inline: auto;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.4rem;
+    background: var(--color-surface);
+    color: var(--color-ink-3);
+    text-align: center;
+  }
+
+  .uiw__body {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.25rem 1.4rem 1.4rem;
+  }
+
+  .uiw__progress {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    padding: 0 1.4rem 1.2rem;
+  }
+  .uiw__progress span {
+    width: 1rem;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--color-line-strong);
+  }
+  .uiw__progress span.is-on {
+    width: 1.75rem;
+    background: var(--color-accent);
+  }
+
+  .uiw__glare {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: inherit;
+    background: radial-gradient(30rem circle at var(--mx, 30%) var(--my, 0%), oklch(100% 0 0 / 0.22), transparent 50%);
+    opacity: 0;
+    transition: opacity 500ms var(--ease-out);
+  }
+  .uiw:global(.is-tilting) .uiw__glare {
+    opacity: 1;
+  }
+</style>

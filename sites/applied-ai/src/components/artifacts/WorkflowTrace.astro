@@ -1,0 +1,193 @@
+---
+/**
+ * WorkflowTrace — hero artifact. One request traced through an applied
+ * workflow, step by step along a drawn line. The review step is where a
+ * person checks the work: it gets the red-pen circle. Plays once (no loop).
+ * Illustrative data (see footer legal).
+ */
+import DrawingSheet from "./DrawingSheet.astro";
+
+const steps = [
+  { label: "Request received", detail: "Email from a prospective client · 2 attachments", time: "9:31" },
+  { label: "Details extracted", detail: "12 fields filled from the email and documents", time: "9:31" },
+  { label: "Matched to your records", detail: "Existing contact found · no conflicts flagged", time: "9:32" },
+  { label: "First draft prepared", detail: "Intake summary and engagement letter drafted", time: "9:33" },
+  { label: "Reviewed by your team", detail: "Two edits, approved by K. Lin", time: "9:42", review: true },
+  { label: "Filed and sent", detail: "Saved to the CRM · reply sent from your inbox", time: "9:43" },
+];
+---
+
+<DrawingSheet sheet="WF-01" title="New client intake" class="trace" aria-hidden="true">
+  <div class="trace__head">
+    <p class="trace__kicker">Workflow · applied</p>
+    <p class="trace__legend"><span class="trace__legend-mark" aria-hidden="true"></span>Person reviews</p>
+  </div>
+  <ol class="trace__steps" data-sequence data-sequence-start="1000" data-sequence-interval="380" data-sequence-hold="0">
+    {steps.map((s, i) => (
+      <li class:list={["step", s.review && "step--review", i < 2 && "is-on"]} data-seq={i >= 2 ? "" : undefined}>
+        <span class="step__node" aria-hidden="true"><span>{String(i + 1).padStart(2, "0")}</span></span>
+        <span class="step__text">
+          <span class="step__label">{s.label}</span>
+          <span class="step__detail">{s.detail}</span>
+        </span>
+        <span class="step__time">{s.time}</span>
+        {s.review && (
+          <svg class="step__pen" viewBox="0 0 220 70" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M24 38c6-20 52-30 98-29 52 1 92 10 90 27-2 20-58 28-104 27C56 62 12 54 16 36c3-12 22-20 46-24" pathLength="1" />
+          </svg>
+        )}
+      </li>
+    ))}
+  </ol>
+  <p class="trace__foot">
+    <span>Elapsed <strong>12 min</strong>, including review</span>
+    <span>Illustrative</span>
+  </p>
+</DrawingSheet>
+
+<style>
+  .trace {
+    width: 100%;
+  }
+  .trace__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+  }
+  .trace__kicker,
+  .trace__legend,
+  .trace__foot {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.04em;
+    color: var(--color-ink-3);
+  }
+  .trace__kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .trace__legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .trace__legend-mark {
+    width: 1.1rem;
+    height: 0.6rem;
+    border: 1.5px solid var(--color-pop);
+    border-radius: 50%;
+  }
+
+  .trace__steps {
+    position: relative;
+    display: grid;
+  }
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2rem 1fr auto;
+    gap: 0.9rem;
+    align-items: start;
+    padding-bottom: 1rem;
+    --seq-from: 0.5rem;
+    --seq-scale: 1;
+  }
+  /* The drawn line from this node to the next. */
+  .step:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: calc(1rem - 0.5px);
+    top: 2rem;
+    bottom: 0;
+    width: 1px;
+    background: var(--color-accent);
+    transform-origin: top;
+    transform: scaleY(0);
+    transition: transform 520ms var(--ease-in-out) 160ms;
+  }
+  .step:global(.is-on)::before {
+    transform: scaleY(1);
+  }
+  .step__node {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--color-accent);
+    border-radius: 0.25rem;
+    background: var(--color-surface);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--color-accent);
+    transition: background-color 400ms var(--ease-out), color 400ms var(--ease-out);
+  }
+  .step:global(.is-on) .step__node {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+  .step__text {
+    display: grid;
+    gap: 0.1rem;
+    padding-top: 0.2rem;
+    min-width: 0;
+  }
+  .step__label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .step__detail {
+    font-size: 0.8125rem;
+    color: var(--color-ink-3);
+  }
+  .step__time {
+    padding-top: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    color: var(--color-ink-3);
+  }
+
+  /* The person's review: red-pen circle draws around it. */
+  .step--review .step__node {
+    border-color: var(--color-pop);
+    color: var(--color-pop);
+  }
+  .step--review:global(.is-on) .step__node {
+    background: var(--color-pop);
+    color: var(--color-pop-ink);
+  }
+  .step__pen {
+    position: absolute;
+    left: 2rem;
+    top: -0.85rem;
+    width: min(18.5rem, 84%);
+    height: 4.6rem;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .step__pen path {
+    fill: none;
+    stroke: var(--color-pop);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 900ms cubic-bezier(0.35, 0.1, 0.25, 1) 380ms;
+  }
+  .step--review:global(.is-on) .step__pen path {
+    stroke-dashoffset: 0;
+  }
+
+  .trace__foot {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 0.85rem;
+    border-top: 1px dashed var(--color-line-strong);
+  }
+  .trace__foot strong {
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+</style>

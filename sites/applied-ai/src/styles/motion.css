@@ -1,0 +1,192 @@
+/* ==========================================================================
+   MOTION (CSS half) — initial states and transitions for the declarative
+   motion engine in src/motion/. See harness/motion/motion.md.
+
+   Safety model:
+   - Content is hidden ONLY when <html> has `.motion` (set in <head> when
+     JS runs and the user hasn't asked for reduced motion or paused it).
+   - A failsafe reveals everything after 3s if the engine never boots.
+   - Only opacity, transform, filter and clip-path animate (no layout).
+   ========================================================================== */
+
+/* ----- Reveal: data-reveal="up|fade|rise|scale|blur|left|right|mask|rule" ---- */
+
+[data-reveal] {
+  --reveal-from: translate3d(0, 1.5rem, 0);
+  --reveal-blur: 0px;
+  transition:
+    opacity var(--dur-reveal) var(--ease-out) var(--d, 0ms),
+    transform var(--dur-reveal) var(--ease-out) var(--d, 0ms),
+    filter var(--dur-reveal) var(--ease-out) var(--d, 0ms),
+    clip-path var(--dur-reveal) var(--ease-out) var(--d, 0ms);
+}
+[data-reveal="fade"]  { --reveal-from: none; }
+[data-reveal="rise"]  { --reveal-from: translate3d(0, 3.5rem, 0); }
+[data-reveal="scale"] { --reveal-from: scale(0.94); }
+[data-reveal="blur"]  { --reveal-from: translate3d(0, 1rem, 0); --reveal-blur: 10px; }
+[data-reveal="left"]  { --reveal-from: translate3d(-2.5rem, 0, 0); }
+[data-reveal="right"] { --reveal-from: translate3d(2.5rem, 0, 0); }
+[data-reveal="rule"]  { --reveal-from: scaleX(0); transform-origin: left center; }
+
+html.motion [data-reveal]:not(.is-in) {
+  opacity: 0;
+  transform: var(--reveal-from);
+  filter: blur(var(--reveal-blur));
+}
+html.motion [data-reveal="rule"]:not(.is-in) {
+  opacity: 1;
+}
+html.motion [data-reveal="mask"]:not(.is-in) {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 100% 0);
+}
+[data-reveal="mask"].is-in {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Split headlines stay invisible until SplitText has wrapped them. */
+html.motion [data-split]:not(.is-split) {
+  visibility: hidden;
+}
+
+/* ----- Failsafe: never leave content hidden ------------------------------- */
+@keyframes motion-failsafe {
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    clip-path: none;
+    visibility: visible;
+  }
+}
+html.motion:not(.motion-ready) :is([data-reveal], [data-seq]) {
+  animation: motion-failsafe 0s linear 3s forwards;
+}
+/* Split text has its own failsafe: if SplitText never arrives, show the text. */
+html.motion [data-split]:not(.is-split) {
+  animation: motion-failsafe 0s linear 2.5s forwards;
+}
+
+/* ----- Counter: rolling odometer digits ----------------------------------- */
+.count-roll {
+  display: inline-flex;
+  vertical-align: top;
+  line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.count-roll__col {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  /* soft fade at the column edges */
+  mask-image: linear-gradient(transparent, #000 18%, #000 82%, transparent);
+}
+.count-roll__strip {
+  display: flex;
+  flex-direction: column;
+  transform: translate3d(0, calc(var(--digit, 0) * -1em), 0);
+  transition: transform calc(var(--dur-move) * 2.4) var(--ease-out) var(--k, 0ms);
+}
+.count-roll__strip > span {
+  height: 1em;
+  line-height: 1;
+}
+
+/* ----- Marks: hand-drawn annotations ------------------------------------- */
+.mark-layer {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.mark-layer--under { z-index: -1; }
+.mark-layer--over  { z-index: 1; }
+.mark-host { position: relative; isolation: isolate; }
+
+/* ----- Sequence: self-playing UI demos ------------------------------------ */
+html.motion [data-seq]:not(.is-on) {
+  opacity: 0;
+  transform: translate3d(0, var(--seq-from, 0.75rem), 0) scale(var(--seq-scale, 0.98));
+}
+[data-seq] {
+  transition:
+    opacity var(--dur-move) var(--ease-out),
+    transform var(--dur-move) var(--ease-spring-soft);
+}
+
+/* ----- Story: sticky stage views ------------------------------------------ */
+[data-story-view] {
+  transition:
+    opacity var(--dur-move) var(--ease-out),
+    transform var(--dur-move) var(--ease-out),
+    filter var(--dur-move) var(--ease-out),
+    visibility 0s linear var(--dur-move);
+}
+[data-story-view]:not(.is-active) {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 1rem, 0);
+  filter: blur(6px);
+}
+[data-story-view].is-active {
+  transition-delay: 0ms, 0ms, 0ms, 0ms;
+}
+
+/* ----- Tilt / spotlight (pointer: fine only; JS sets the vars) ------------- */
+[data-tilt] {
+  transform: perspective(1400px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 600ms var(--ease-out);
+  transform-style: preserve-3d;
+}
+[data-tilt].is-tilting {
+  transition-duration: 120ms;
+}
+[data-magnetic] {
+  transition: translate 500ms var(--ease-spring-soft);
+}
+[data-magnetic].is-pulling {
+  transition-duration: 150ms;
+}
+
+/* ----- Marquee ------------------------------------------------------------ */
+@keyframes marquee {
+  to { transform: translate3d(calc(-50% - var(--marquee-gap, 3rem) / 2), 0, 0); }
+}
+
+/* ----- Ambient drift for background blobs ---------------------------------- */
+@keyframes drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(4vw, -3vh, 0) scale(1.08); }
+  100% { transform: translate3d(-3vw, 2vh, 0) scale(0.96); }
+}
+
+/* ----- Lenis smooth scroll ------------------------------------------------- */
+html.lenis, html.lenis body { height: auto; }
+.lenis:not(.lenis-autoToggle).lenis-stopped { overflow: clip; }
+.lenis [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.lenis) { scroll-behavior: smooth; }
+}
+
+/* ----- Paused / reduced -------------------------------------------------- */
+html.motion-paused *,
+html.motion-paused *::before,
+html.motion-paused *::after {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
+}

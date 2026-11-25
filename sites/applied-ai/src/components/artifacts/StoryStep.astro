@@ -1,0 +1,56 @@
+---
+/**
+ * StoryStep — one chapter of a <StickyStory>. Tall enough that each chapter
+ * gets its own moment (min 70–90svh on desktop). The `visual` slot renders
+ * inline on phones only.
+ */
+interface Props {
+  id: string;
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const { id, class: cls = "", ...rest} = Astro.props;
+---
+
+<article class:list={["step", cls]} {...rest} data-story-step={id}>
+  <div class="step__copy">
+    <slot />
+  </div>
+  {Astro.slots.has("visual") && (
+    <div class="step__visual" aria-hidden="true">
+      <slot name="visual" />
+    </div>
+  )}
+</article>
+
+<style>
+  .step {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 900px) {
+    .step {
+      min-height: clamp(34rem, 82svh, 52rem);
+      align-content: center;
+    }
+    /* Inactive chapters dim through color tokens, not opacity, so they
+       keep AA contrast (ink-3 is AA on paper by design). */
+    .step:not(:global(.is-current)) .step__copy {
+      --color-ink: var(--color-ink-3);
+      --color-ink-2: var(--color-ink-3);
+      --color-accent: var(--color-ink-3);
+    }
+    .step__copy :global(*) {
+      transition: color 600ms var(--ease-out);
+    }
+    .step__visual {
+      display: none;
+    }
+  }
+  @media (max-width: 899px) {
+    .step + .step {
+      margin-top: var(--space-block);
+    }
+  }
+</style>

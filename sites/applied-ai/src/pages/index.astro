@@ -1,0 +1,743 @@
+---
+/**
+ * Applied AI Associates — "Drawn to spec". See design/strategy.md and concept.md.
+ */
+import BaseLayout from "../components/layout/BaseLayout.astro";
+import Section from "../components/layout/Section.astro";
+import Atmosphere from "../components/visual/Atmosphere.astro";
+import Heading from "../components/ui/Heading.astro";
+import Eyebrow from "../components/ui/Eyebrow.astro";
+import Button from "../components/ui/Button.astro";
+import Mark from "../components/ui/Mark.astro";
+import StickyStory from "../components/artifacts/StickyStory.astro";
+import StoryStep from "../components/artifacts/StoryStep.astro";
+import StoryView from "../components/artifacts/StoryView.astro";
+import WorkflowTrace from "../components/artifacts/WorkflowTrace.astro";
+import MethodSheet from "../components/artifacts/MethodSheet.astro";
+import IndustryTabs from "../components/sections/IndustryTabs.astro";
+import FAQ from "../components/sections/FAQ.astro";
+import LeadForm from "../components/sections/LeadForm.astro";
+import { site } from "../site.config";
+
+const f = site.facts;
+
+const method = [
+  {
+    id: "understand" as const,
+    n: "01",
+    name: "Understand",
+    title: "Find where the week actually goes.",
+    body: "We sit with your team, map the work that happens behind the scenes, and check the tools you already pay for. You get a clear picture of where AI helps, where it doesn't, and where a simpler fix is better.",
+  },
+  {
+    id: "recommend" as const,
+    n: "02",
+    name: "Recommend",
+    title: "Choose platforms on the merits.",
+    body: "We start with what you already own and recommend new software only when it earns its place. We're vendor-neutral, we explain every cost before you decide, and subscriptions are billed by the vendor, never marked up.",
+  },
+  {
+    id: "build" as const,
+    n: "03",
+    name: "Build",
+    title: "Build it with the people who use it.",
+    body: "We set up an agreed workflow inside your existing systems, connect the pieces, and test it against real examples, odd cases included. A person on your team reviews the result before anything leaves the building.",
+  },
+  {
+    id: "run" as const,
+    n: "04",
+    name: "Run",
+    title: "Train, measure, hand over.",
+    body: `We train everyone who uses it, write down who owns what, and compare results to where you started. Then we stay on for ${f.followUpDays} days of follow-up, and longer if you want us to.`,
+  },
+];
+
+const industries = [
+  {
+    id: "law",
+    label: "Law firms",
+    who: "For firms where confidentiality and judgment come first. AI takes the first pass; attorneys make every call.",
+    items: [
+      { title: "Intake to engagement letter", body: "New inquiries turned into conflict-check requests and draft engagement letters, ready for attorney review." },
+      { title: "File summaries", body: "Correspondence, transcripts and productions summarized into a first-pass memo with sources cited." },
+      { title: "Deadlines captured", body: "Dates pulled from court notices and correspondence into the docket calendar, flagged for confirmation." },
+    ],
+  },
+  {
+    id: "finance",
+    label: "Wealth & private equity",
+    who: "For advisors and investment teams who need speed without loosening control of client and deal data.",
+    items: [
+      { title: "Meeting notes to CRM", body: "Client meeting notes turned into CRM updates and follow-up drafts for the advisor to approve." },
+      { title: "First-pass diligence", body: "Data-room documents summarized into a structured first-pass memo for the deal team." },
+      { title: "Investor reporting", body: "Quarterly letters and updates drafted from portfolio data for partner review." },
+    ],
+  },
+  {
+    id: "manufacturing",
+    label: "Manufacturing",
+    who: "For precision manufacturers whose best people spend too much time on quotes, paperwork and chasing status.",
+    items: [
+      { title: "RFQs to draft quotes", body: "Requests read from email, line items extracted, and draft quotes staged in the ERP for an estimator." },
+      { title: "Certs and shipping paperwork", body: "Certificates and inspection documents compiled per order, checked against the purchase order." },
+      { title: "Supplier early warning", body: "Delays and changes spotted in supplier email and flagged before they reach the schedule." },
+    ],
+  },
+  {
+    id: "aec",
+    label: "Architecture, engineering & construction",
+    who: "For design and build teams buried in RFIs, submittals, minutes and proposals.",
+    items: [
+      { title: "RFIs and submittals logged", body: "Incoming RFIs and submittals logged, routed to the right person and tracked to close." },
+      { title: "Minutes to action lists", body: "Meeting minutes and field notes turned into owners, dates and follow-ups." },
+      { title: "Proposal first drafts", body: "Proposals assembled from your past projects, bios and boilerplate for a principal to finish." },
+    ],
+  },
+  {
+    id: "brands",
+    label: "Consumer brands & agencies",
+    who: "For brands and agencies juggling retailers, distributors, briefs and reporting across too many portals.",
+    items: [
+      { title: "Purchase orders entered", body: "Retailer and distributor POs read and entered into your order system for a quick check." },
+      { title: "On-brand first drafts", body: "Product copy, briefs and recaps drafted from your brand guidelines for your team to edit." },
+      { title: "Weekly sales roll-up", body: "Numbers gathered from portals and spreadsheets into one weekly report." },
+    ],
+  },
+  {
+    id: "realestate",
+    label: "Real estate",
+    who: "For owners, developers and managers with documents, tenants and investors to keep up with.",
+    items: [
+      { title: "Lease abstracts", body: "Key terms, dates and obligations abstracted from leases into a consistent summary." },
+      { title: "Requests sorted and routed", body: "Tenant and vendor requests sorted by property and urgency, routed to the right person." },
+      { title: "Investor updates", body: "Property updates drafted from operating data and site notes for review." },
+    ],
+  },
+];
+
+const ladder = [
+  {
+    step: "Start here",
+    name: "Introductory call",
+    term: `Free · ${f.introCallMinutes} minutes`,
+    body: "We look at your week together and tell you honestly whether we can help.",
+    points: ["Where time goes today", "One or two ideas you can use anyway", "No pitch deck"],
+  },
+  {
+    step: "Light touch",
+    name: "AI Assessment",
+    term: "Fixed fee · about two weeks",
+    body: "A short, senior engagement that gives leadership a clear answer on AI, whether or not you build with us.",
+    points: ["Leadership briefing", "Interviews with the people doing the work", "Review of tools you already pay for", "A written roadmap with three priorities"],
+    featured: true,
+  },
+  {
+    step: "Build",
+    name: "First workflow",
+    term: "Fixed fee · about a month",
+    body: "One real improvement, built inside your tools and running by the end of the month.",
+    points: ["Discovery with your team", "Built and tested on real examples", "Training for everyone who uses it", `Before and after numbers, ${f.followUpDays} days of follow-up`],
+  },
+  {
+    step: "Grow",
+    name: "Ongoing partnership",
+    term: "Monthly · cancel anytime",
+    body: "We keep things working and keep improving them as your firm changes.",
+    points: ["Monitoring and fixes", "New workflows as you're ready", "A monthly check-in"],
+  },
+];
+---
+
+<BaseLayout
+  title="Applied AI Associates · AI adoption and development for firms"
+  rawTitle
+  description="We help firms understand where AI fits, choose the right platforms, and build workflows inside the tools they already use. Fixed fees. Your people stay in charge."
+>
+  <Atmosphere slot="background" variant="grid" cell={40} />
+
+  <!-- 1 · HERO -->
+  <Section hero name="hero" width="wide" class="hero">
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <Eyebrow reveal="fade">AI adoption and development · {f.region}</Eyebrow>
+        <Heading as="h1" size="display" split="lines" delay={80}>
+          AI, <em>applied</em> to the work your firm actually does.
+        </Heading>
+        <p class="type-lead measure" data-reveal data-delay="380">
+          We help you understand where AI fits, choose the right platforms, and build workflows inside the tools you already use. Your people stay in charge of every result.
+        </p>
+        <div class="hero__actions" data-reveal data-delay="520">
+          <Button href={site.cta.href} size="lg" track="hero">{site.cta.label}</Button>
+          <Button href="#engage" variant="link" track="hero_secondary">See how we engage</Button>
+        </div>
+        <p class="hero__terms" data-reveal="fade" data-delay="680">Fixed fees, agreed in writing before work begins.</p>
+      </div>
+      <div class="hero__artifact" data-reveal="rise" data-delay="600">
+        <WorkflowTrace />
+      </div>
+    </div>
+  </Section>
+
+  <!-- 2 · TENSION -->
+  <Section id="why" name="tension" class="tension">
+    <div class="tension__grid">
+      <div class="tension__head">
+        <span class="rule" data-reveal="rule" aria-hidden="true"></span>
+        <Heading size="title" split="lines">Everyone is talking about AI. Few firms have it doing real work.</Heading>
+      </div>
+      <div class="tension__side">
+        <ul class="symptoms" data-reveal-group data-stagger="140">
+          <li data-reveal><Mark type="strike" delay={500}>A Copilot license nobody opens.</Mark></li>
+          <li data-reveal><Mark type="strike" delay={750}>A pilot that never left the pilot.</Mark></li>
+          <li data-reveal><Mark type="strike" delay={1000}>Client files pasted into public chatbots.</Mark></li>
+        </ul>
+        <p class="type-lead" data-reveal>
+          The gap isn't the technology. It's knowing where AI belongs in your firm, choosing tools you can trust, and building something your people will actually use. That's the work we do.
+        </p>
+      </div>
+    </div>
+  </Section>
+
+  <!-- 3 · SIGNATURE: the method -->
+  <Section id="method" name="method" class="method">
+    <div class="method__intro">
+      <Eyebrow index={1}>The method</Eyebrow>
+      <Heading size="title" split="lines">From first question to <em>working system</em>.</Heading>
+      <p class="type-lead" data-reveal>Four stages, each one specified, reviewed and signed off before the next begins.</p>
+    </div>
+    <StickyStory ratio="5/7">
+      {method.map((m, i) => (
+        <StoryStep id={m.id}>
+          <p class="chapter__n"><span>{m.n}</span>{m.name}</p>
+          <h3 class="type-title chapter__title">{m.title}</h3>
+          <p class="type-lead chapter__body">{m.body}</p>
+          {i === method.length - 1 && (
+            <div class="chapter__cta"><Button href={site.cta.href} track="method">{site.cta.label}</Button></div>
+          )}
+          <Fragment slot="visual"><MethodSheet state={m.id} /></Fragment>
+        </StoryStep>
+      ))}
+      <Fragment slot="stage">
+        {method.map((m, i) => (
+          <StoryView id={m.id} initial={i === 0}><MethodSheet state={m.id} /></StoryView>
+        ))}
+      </Fragment>
+    </StickyStory>
+    <p class="type-small method__note">Sheets show an illustrative engagement. Names and figures are examples.</p>
+  </Section>
+
+  <!-- 4 · INDUSTRIES -->
+  <Section id="industries" name="industries" class="industries">
+    <div class="sec-head">
+      <Eyebrow index={2}>Industries</Eyebrow>
+      <Heading size="title" split="lines">Built around how your firm already works.</Heading>
+      <p class="type-lead" data-reveal>Professional firms first, and any business with skilled people stuck doing repetitive work. A few places we'd start:</p>
+    </div>
+    <div data-reveal>
+      <IndustryTabs industries={industries} />
+    </div>
+  </Section>
+
+  <!-- 5 · ENGAGE -->
+  <Section id="engage" name="engage" tone="dark" class="engage">
+    <div class="sec-head sec-head--wide">
+      <Eyebrow index={3}>Engagements</Eyebrow>
+      <Heading size="title" split="lines">Start small. <em>Scale what works.</em></Heading>
+      <p class="type-lead" data-reveal>Every engagement is a fixed fee, agreed in writing before any work begins. No hourly billing and no surprise invoices.</p>
+    </div>
+    <ol class="ladder" data-reveal-group data-stagger="120">
+      <span class="ladder__rule" data-reveal="rule" aria-hidden="true"></span>
+      {ladder.map((l, i) => (
+        <li class:list={["rung", l.featured && "rung--featured"]} data-reveal>
+          <p class="rung__step"><span class="rung__node" aria-hidden="true">{i + 1}</span>{l.step}</p>
+          <h3 class="rung__name">{l.name}</h3>
+          <p class="rung__term">{l.term}</p>
+          <p class="rung__body">{l.body}</p>
+          <ul class="rung__points">
+            {l.points.map((p) => <li>{p}</li>)}
+          </ul>
+        </li>
+      ))}
+    </ol>
+    <div class="engage__cta" data-reveal>
+      <Button href={site.cta.href} size="lg" track="engage">{site.cta.label}</Button>
+      <p class="type-small">Most firms start with a call, then an assessment.</p>
+    </div>
+  </Section>
+
+  <!-- 6 · STANDARDS -->
+  <Section id="standards" name="standards" class="standards">
+    <div class="standards__grid">
+      <div class="sec-head">
+        <Eyebrow index={4}>Standards</Eyebrow>
+        <Heading size="title" split="lines">How we work.</Heading>
+      </div>
+      <ol class="std" data-reveal-group data-stagger="100">
+        <li data-reveal>
+          <h3>Your people stay in charge.</h3>
+          <p>AI prepares; a person on your team reviews and decides. Client conversations stay with your people.</p>
+        </li>
+        <li data-reveal>
+          <h3>Safe by design.</h3>
+          <p>We set AI up inside business-grade tools your firm controls, so client and company data never ends up in public chatbots.</p>
+        </li>
+        <li data-reveal>
+          <h3>Use what you own first.</h3>
+          <p>We check the software you already pay for before suggesting anything new, and tell you plainly when a simpler process is the better fix.</p>
+        </li>
+        <li data-reveal>
+          <h3>Fixed fees, no markups.</h3>
+          <p>Scope and price agreed in writing up front. Software subscriptions are billed by the vendor, not by us.</p>
+        </li>
+      </ol>
+    </div>
+  </Section>
+
+  <!-- 7 · FOUNDER -->
+  <Section id="about" name="about" class="about" tone="sunken">
+    <div class="about__grid">
+      <div class="sec-head">
+        <Eyebrow index={5}>Who you work with</Eyebrow>
+        <Heading size="title" split="lines">A senior advisor, not a call center.</Heading>
+      </div>
+      <figure class="letter" data-reveal="rise">
+        <blockquote>
+          <p>I've spent my career helping businesses use technology safely. Today I'm helping a window and door company put AI to work across sales, operations and the back office.</p>
+          <p>When you engage Applied AI Associates, you work with me directly. I'll come on site when it helps, and I'll tell you plainly when something isn't worth automating.</p>
+        </blockquote>
+        <figcaption>
+          <span class="letter__sig">{f.founder}</span>
+          <span class="letter__role">{f.founderTitle}, Applied AI Associates</span>
+        </figcaption>
+        <p class="letter__area">{f.serviceArea}</p>
+      </figure>
+    </div>
+  </Section>
+
+  <!-- 8 · FAQ -->
+  <Section id="faq" name="faq" width="narrow">
+    <div class="grid gap-block">
+      <div class="sec-head">
+        <Eyebrow index={6}>Questions</Eyebrow>
+        <Heading size="title" split="lines">Straight answers.</Heading>
+      </div>
+      <FAQ
+        items={[
+          { q: "We don't know where to start. Is that a problem?", a: "No, that's where most firms are. Start with the free call. If it makes sense, the AI Assessment gives leadership a written answer on where AI fits, what to use and what to do first." },
+          { q: "How do you handle confidential client data?", a: "We set AI up inside business-grade tools your firm controls, not public chatbots, and we design every workflow so a person on your team reviews the result before it goes anywhere." },
+          { q: "Will clients still deal with a real person?", a: "Yes. AI prepares and organizes the work behind the scenes. Client-facing messages and decisions stay with your team." },
+          { q: "Do we need to buy new software?", a: "Usually not. We start with what you already use, like your email, calendar, CRM, practice management or ERP. If something new would help, we explain the cost before you decide, and the vendor bills you directly." },
+          { q: "Which AI platforms do you work with?", a: "We're vendor-neutral. We'll often start with tools already in your stack, such as Microsoft 365 or Google Workspace, and recommend others only when they're the right fit." },
+          { q: "How is pricing structured?", a: "Every engagement has a fixed fee, scoped and agreed in writing before work begins. No hourly billing. The first conversation is always free." },
+        ]}
+      />
+    </div>
+  </Section>
+
+  <!-- 9 · CONTACT -->
+  <Section id="contact" name="final_cta" pad="lg" class="contact">
+    <div class="contact__grid">
+      <div class="contact__copy">
+        <Heading size="display" split="lines">Where would AI make the biggest difference in your firm?</Heading>
+        <p class="type-lead" data-reveal>
+          Tell us about the work that slows your team down. We'll use the call to find one practical place to start.
+        </p>
+        <p class="contact__terms" data-reveal>The first conversation is free. Paid work starts only after we agree on scope and fee in writing.</p>
+      </div>
+      <div class="contact__card" data-reveal="rise">
+        <h2 class="contact__title">Book a free {f.introCallMinutes}-minute call</h2>
+        <LeadForm
+          formName="intro-call"
+          fields={[
+            { name: "name", label: "Your name", autocomplete: "name", required: true, half: true },
+            { name: "firm", label: "Firm", autocomplete: "organization", required: true, half: true },
+            { name: "email", label: "Work email", type: "email", autocomplete: "email", required: true, half: true },
+            { name: "phone", label: "Phone", type: "tel", autocomplete: "tel", half: true },
+            { name: "work", label: "What takes up your team's week?", type: "textarea" },
+          ]}
+          submit="Request a call"
+          success="Thank you. We'll reply within one business day to find a time."
+        />
+      </div>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  /* Shared section head */
+  .sec-head {
+    display: grid;
+    gap: 1.1rem;
+    max-width: 44rem;
+    margin-bottom: var(--space-block);
+  }
+  .sec-head--wide {
+    max-width: 52rem;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero__grid {
+    display: grid;
+    gap: clamp(3rem, 2rem + 4vw, 5.5rem);
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .hero__grid {
+      grid-template-columns: 7fr 5fr;
+    }
+  }
+  .hero__copy {
+    display: grid;
+    gap: 1.75rem;
+    justify-items: start;
+  }
+  .hero__copy :global(h1) {
+    max-width: 13ch;
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.75rem;
+    margin-top: 0.5rem;
+  }
+  .hero__terms,
+  .contact__terms {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.02em;
+    color: var(--color-ink-3);
+  }
+  .hero__artifact {
+    width: 100%;
+    max-width: 31rem;
+    justify-self: center;
+  }
+
+  /* ---------- Tension ---------- */
+  .tension__grid {
+    display: grid;
+    gap: var(--space-block);
+  }
+  @media (min-width: 1024px) {
+    .tension__grid {
+      grid-template-columns: 6fr 6fr;
+      align-items: start;
+    }
+  }
+  .tension__head {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .tension__side {
+    display: grid;
+    gap: 2rem;
+  }
+  .symptoms {
+    display: grid;
+    border-top: 1px solid var(--color-line-strong);
+  }
+  .symptoms li {
+    padding-block: 1.1rem;
+    border-bottom: 1px solid var(--color-line);
+    font-family: var(--font-display);
+    font-size: var(--text-heading);
+    line-height: 1.2;
+    color: var(--color-ink);
+  }
+
+  /* ---------- Method ---------- */
+  .method__intro {
+    display: grid;
+    gap: 1.1rem;
+    max-width: 44rem;
+  }
+  .method :global(.story) {
+    margin-top: var(--space-block);
+    --stage-h: 32rem;
+  }
+  .chapter__n {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent-deep);
+  }
+  .chapter__n span {
+    padding: 0.1rem 0.4rem;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-inner);
+  }
+  .chapter__title {
+    margin-top: 1rem;
+  }
+  .chapter__body {
+    margin-top: 1.25rem;
+    max-width: 30rem;
+  }
+  .chapter__cta {
+    margin-top: 2rem;
+  }
+  .method__note {
+    margin-top: 1.5rem;
+    color: var(--color-ink-3);
+  }
+
+  /* ---------- Engage (dark) ---------- */
+  .ladder {
+    position: relative;
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 900px) {
+    .ladder {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .ladder__rule {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0.75rem;
+    height: 1px;
+    background: var(--color-line-strong);
+    transform-origin: left;
+  }
+  @media (max-width: 899px) {
+    .ladder__rule {
+      display: none;
+    }
+  }
+  .rung {
+    position: relative;
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    padding: 0 1.5rem 1.75rem 0;
+  }
+  @media (max-width: 899px) {
+    .rung {
+      padding: 1.5rem;
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-card);
+    }
+  }
+  .rung__step {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+  }
+  .rung__node {
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-inner);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    letter-spacing: 0;
+  }
+  .rung--featured .rung__step {
+    color: var(--color-ink);
+  }
+  .rung--featured .rung__node {
+    background: var(--color-ink);
+    color: var(--color-paper);
+    border-color: var(--color-ink);
+  }
+  .rung__name {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.4rem + 1vw, 2.25rem);
+    line-height: 1.05;
+    color: var(--color-ink);
+  }
+  .rung__term {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    color: var(--color-accent-deep);
+  }
+  .rung__body {
+    font-size: var(--text-small);
+    line-height: 1.55;
+    color: var(--color-ink-2);
+  }
+  .rung__points {
+    display: grid;
+    gap: 0.45rem;
+    margin-top: 0.5rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--color-line);
+    font-size: var(--text-small);
+    color: var(--color-ink-2);
+  }
+  .rung__points li {
+    display: flex;
+    gap: 0.6rem;
+  }
+  .rung__points li::before {
+    content: "";
+    flex: none;
+    width: 0.5rem;
+    height: 1px;
+    margin-top: 0.7em;
+    background: var(--color-ink-3);
+  }
+  .rung--featured {
+    padding: 0 1.5rem 1.75rem;
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-line-strong);
+  }
+  .rung--featured .rung__step {
+    margin-top: 0;
+  }
+  @media (min-width: 900px) {
+    .rung--featured {
+      margin-top: -1.25rem;
+      padding-top: 1.25rem;
+    }
+  }
+  .engage__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: var(--space-block);
+    color: var(--color-ink-3);
+  }
+
+  /* ---------- Standards ---------- */
+  .standards__grid {
+    display: grid;
+    gap: 0 var(--space-block);
+  }
+  @media (min-width: 1024px) {
+    .standards__grid {
+      grid-template-columns: 4fr 8fr;
+    }
+  }
+  .std {
+    display: grid;
+    border-top: 1px solid var(--color-line-strong);
+    counter-reset: std;
+  }
+  @media (min-width: 768px) {
+    .std {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .std li {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    padding: 1.75rem 1.75rem 1.75rem 0;
+    border-bottom: 1px solid var(--color-line);
+    counter-increment: std;
+  }
+  .std li::before {
+    content: counter(std, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    color: var(--color-accent-deep);
+  }
+  .std h3 {
+    font-family: var(--font-display);
+    font-size: var(--text-heading);
+    line-height: 1.15;
+    color: var(--color-ink);
+  }
+  .std p {
+    font-size: var(--text-small);
+    line-height: 1.6;
+    color: var(--color-ink-2);
+  }
+
+  /* ---------- Founder ---------- */
+  .about__grid {
+    display: grid;
+    gap: 0 var(--space-block);
+    align-items: start;
+  }
+  @media (min-width: 1024px) {
+    .about__grid {
+      grid-template-columns: 5fr 7fr;
+    }
+  }
+  .letter {
+    display: grid;
+    gap: 1.75rem;
+    margin: 0;
+    padding: clamp(1.75rem, 1.2rem + 2vw, 3rem);
+    background: var(--color-surface);
+    border-radius: var(--radius-card);
+    box-shadow: 0 0 0 1px var(--color-line-strong);
+  }
+  .letter blockquote {
+    display: grid;
+    gap: 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+    line-height: 1.35;
+    color: var(--color-ink);
+  }
+  .letter figcaption {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .letter__sig {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--color-ink);
+  }
+  .letter__role {
+    font-size: var(--text-small);
+    color: var(--color-ink-3);
+  }
+  .letter__area {
+    padding-top: 1.1rem;
+    border-top: 1px dashed var(--color-line-strong);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    color: var(--color-ink-3);
+  }
+
+  /* ---------- Contact ---------- */
+  .contact__grid {
+    display: grid;
+    gap: var(--space-block);
+    align-items: start;
+  }
+  @media (min-width: 1024px) {
+    .contact__grid {
+      grid-template-columns: 6fr 6fr;
+    }
+  }
+  .contact__copy {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .contact__card {
+    padding: clamp(1.5rem, 1.1rem + 1.6vw, 2.5rem);
+    background: var(--color-surface);
+    border-radius: var(--radius-card);
+    box-shadow: 0 0 0 1px var(--color-line-strong), var(--shadow-lift);
+  }
+  .contact__title {
+    margin-bottom: 1.5rem;
+    font-family: var(--font-display);
+    font-size: var(--text-heading);
+    color: var(--color-ink);
+  }
+</style>

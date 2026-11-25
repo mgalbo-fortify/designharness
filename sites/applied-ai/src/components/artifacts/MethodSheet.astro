@@ -1,0 +1,382 @@
+---
+/**
+ * MethodSheet — the pinned artifact in the Method story. One drawing set,
+ * four sheets: Understand → Recommend → Build → Run. Each sheet demonstrates
+ * its chapter, and each ends with a red-pen review mark (a person signs off).
+ * Rendered per StoryView on desktop and inline per step on mobile.
+ * Illustrative data (see footer legal).
+ */
+import DrawingSheet from "./DrawingSheet.astro";
+import Counter from "../ui/Counter.astro";
+import Mark from "../ui/Mark.astro";
+
+interface Props {
+  state: "understand" | "recommend" | "build" | "run";
+}
+const { state } = Astro.props;
+
+const week = [
+  { task: "Re-keying details between systems", h: 9, opp: true },
+  { task: "Searching email and shared drives", h: 7, opp: true },
+  { task: "Drafting routine letters and replies", h: 6, opp: true },
+  { task: "Scheduling and follow-ups", h: 4 },
+  { task: "Weekly reporting", h: 3 },
+];
+const maxH = 10;
+
+const platforms = [
+  { tool: "Microsoft 365 Copilot", note: "Already licensed. Use it for drafting and summaries.", verdict: "Use", tone: "use" },
+  { tool: "CRM built-in AI", note: "Included in your plan. Switch on lead summaries.", verdict: "Enable", tone: "use" },
+  { tool: "Intake workflow", note: "Nothing off the shelf fits. Build it on your tools.", verdict: "Build", tone: "build" },
+  { tool: "New AI platform", note: "Not needed yet. Revisit in six months.", verdict: "Skip", tone: "skip" },
+];
+
+const sheets = {
+  understand: { sheet: "A-101", title: "Where the week goes" },
+  recommend: { sheet: "A-102", title: "Platform recommendation" },
+  build: { sheet: "A-103", title: "Intake workflow, tested" },
+  run: { sheet: "A-104", title: "Results and ownership" },
+}[state];
+---
+
+<DrawingSheet sheet={sheets.sheet} title={sheets.title} class:list={["msheet", `msheet--${state}`]} aria-hidden="true">
+  {state === "understand" && (
+    <div class="ms">
+      <p class="ms__kicker">Hours per week, operations team</p>
+      <ul class="weekmap" data-sequence data-sequence-start="250" data-sequence-interval="180" data-sequence-hold="0">
+        {week.map((w) => (
+          <li class:list={["weekmap__row", w.opp && "is-opp"]} data-seq style={`--w:${w.h / maxH}`}>
+            <span class="weekmap__task">{w.task}</span>
+            <span class="weekmap__track"><span class="weekmap__bar"></span></span>
+            <span class="weekmap__h">{w.h} h</span>
+          </li>
+        ))}
+      </ul>
+      <p class="ms__note">
+        <span class="ms__swatch" aria-hidden="true"></span>
+        <span><Mark type="underline" delay={1300}>22 hours a week</Mark> of work AI can take the first pass at.</span>
+      </p>
+    </div>
+  )}
+
+  {state === "recommend" && (
+    <div class="ms">
+      <p class="ms__kicker">Start with what you own</p>
+      <ul class="plat" data-sequence data-sequence-start="250" data-sequence-interval="260" data-sequence-hold="0">
+        {platforms.map((p) => (
+          <li class:list={["plat__row", `plat__row--${p.tone}`]} data-seq>
+            <span class="plat__text">
+              <span class="plat__tool">{p.tone === "skip" ? <Mark type="strike" delay={1500}>{p.tool}</Mark> : p.tool}</span>
+              <span class="plat__note">{p.note}</span>
+            </span>
+            <span class="plat__verdict">{p.verdict}</span>
+          </li>
+        ))}
+      </ul>
+      <p class="ms__note ms__note--plain">Vendor-neutral. Subscriptions are billed by the vendor, never marked up.</p>
+    </div>
+  )}
+
+  {state === "build" && (
+    <div class="ms">
+      <p class="ms__kicker">Built inside your tools</p>
+      <div class="flow" data-sequence data-sequence-start="200" data-sequence-interval="300" data-sequence-hold="0">
+        <span class="flow__node" data-seq>Inbox</span>
+        <span class="flow__node" data-seq>Read</span>
+        <span class="flow__node" data-seq>Draft</span>
+        <span class="flow__node flow__node--review" data-seq>Review</span>
+        <span class="flow__node" data-seq>CRM</span>
+      </div>
+      <p class="ms__kicker">Tested on 50 real past requests</p>
+      <dl class="tests">
+        <div><dt>Handled correctly</dt><dd class="nums"><Counter value={47} duration={1200} delay={1500} /></dd></div>
+        <div><dt>Flagged for a person</dt><dd class="nums"><Counter value={3} duration={900} delay={1500} /></dd></div>
+        <div><dt>Sent without review</dt><dd class="nums"><Mark type="circle" delay={2200}>0</Mark></dd></div>
+      </dl>
+    </div>
+  )}
+
+  {state === "run" && (
+    <div class="ms">
+      <p class="ms__kicker">Before and after · first 30 days</p>
+      <dl class="ba">
+        <div class="ba__row">
+          <dt>Time per intake</dt>
+          <dd><span class="ba__before">45 min</span><span class="ba__arrow" aria-hidden="true">→</span><span class="ba__after nums"><Counter value={12} suffix=" min" delay={300} /></span></dd>
+        </div>
+        <div class="ba__row">
+          <dt>Same-day replies</dt>
+          <dd><span class="ba__before">38%</span><span class="ba__arrow" aria-hidden="true">→</span><span class="ba__after nums"><Counter value={91} suffix="%" delay={450} /></span></dd>
+        </div>
+        <div class="ba__row">
+          <dt>Owner</dt>
+          <dd><span class="ba__owner">Operations manager</span></dd>
+        </div>
+      </dl>
+      <p class="ms__sign">
+        <span>Reviewed and handed over</span>
+        <span class="ms__sig"><Mark type="underline" delay={900}>K. Lin</Mark></span>
+      </p>
+    </div>
+  )}
+</DrawingSheet>
+
+<style>
+  .msheet {
+    width: 100%;
+    max-width: 34rem;
+    margin-inline: auto;
+  }
+  .ms {
+    display: grid;
+    gap: 1rem;
+    min-height: 19rem;
+    align-content: start;
+  }
+  .ms__kicker {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+  }
+  .ms__note {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding-top: 0.85rem;
+    border-top: 1px dashed var(--color-line-strong);
+    font-size: 0.875rem;
+    color: var(--color-ink-2);
+  }
+  .ms__note--plain {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+  }
+  .ms__swatch {
+    flex: none;
+    width: 0.9rem;
+    height: 0.9rem;
+    background: repeating-linear-gradient(135deg, var(--color-accent) 0 1.5px, transparent 1.5px 4px);
+    box-shadow: inset 0 0 0 1px var(--color-accent);
+  }
+
+  /* Week map */
+  .weekmap {
+    display: grid;
+    gap: 0.7rem;
+  }
+  .weekmap__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 2.5rem;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--color-ink-2);
+    --seq-from: 0;
+  }
+  .weekmap__task {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .weekmap__track {
+    height: 0.75rem;
+    background: var(--color-sunken);
+  }
+  .weekmap__bar {
+    display: block;
+    height: 100%;
+    width: calc(var(--w) * 100%);
+    background: var(--color-line-strong);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 700ms var(--ease-out) 100ms;
+  }
+  .weekmap__row.is-opp .weekmap__bar {
+    background: repeating-linear-gradient(135deg, var(--color-accent) 0 1.5px, var(--color-accent-soft) 1.5px 4px);
+    box-shadow: inset 0 0 0 1px var(--color-accent);
+  }
+  .weekmap__row:global(.is-on) .weekmap__bar {
+    transform: scaleX(1);
+  }
+  .weekmap__h {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    text-align: right;
+    color: var(--color-ink);
+  }
+
+  /* Platforms */
+  .plat {
+    display: grid;
+  }
+  .plat__row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding-block: 0.75rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .plat__text {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .plat__tool {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+  }
+  .plat__note {
+    font-size: 0.8125rem;
+    color: var(--color-ink-3);
+  }
+  .plat__verdict {
+    min-width: 4.25rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius-inner);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .plat__row--use .plat__verdict {
+    box-shadow: inset 0 0 0 1px var(--color-accent);
+    color: var(--color-accent);
+  }
+  .plat__row--build .plat__verdict {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+  .plat__row--skip .plat__verdict {
+    box-shadow: inset 0 0 0 1px var(--color-line-strong);
+    color: var(--color-ink-3);
+  }
+
+  /* Build: flow */
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+  .flow__node {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 3rem;
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-inner);
+    background: var(--color-surface);
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    color: var(--color-accent);
+    --seq-from: 0;
+    --seq-scale: 0.9;
+  }
+  .flow__node:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    width: 1.1rem;
+    height: 1px;
+    background: var(--color-accent);
+  }
+  @media (max-width: 520px) {
+    .flow {
+      gap: 0.5rem;
+    }
+    .flow__node:not(:last-child)::after {
+      width: 0.5rem;
+    }
+  }
+  .flow__node--review {
+    border-color: var(--color-pop);
+    color: var(--color-pop);
+    box-shadow: 0 0 0 3px oklch(57% 0.19 32 / 0.12);
+  }
+  .tests {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--color-line);
+  }
+  .tests > div {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.9rem 0.75rem 0 0;
+  }
+  .tests > div + div {
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--color-line);
+  }
+  .tests dt {
+    font-size: 0.8125rem;
+    color: var(--color-ink-3);
+  }
+  .tests dd {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    line-height: 1;
+    color: var(--color-ink);
+  }
+
+  /* Run: before/after */
+  .ba {
+    display: grid;
+  }
+  .ba__row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 1rem;
+    padding-block: 0.9rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .ba__row dt {
+    font-size: 0.875rem;
+    color: var(--color-ink-2);
+  }
+  .ba__row dd {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .ba__before {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-ink-3);
+    text-decoration: line-through;
+    text-decoration-color: var(--color-line-strong);
+  }
+  .ba__arrow {
+    color: var(--color-ink-3);
+  }
+  .ba__after {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    line-height: 1;
+    color: var(--color-accent-deep);
+  }
+  .ba__owner {
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .ms__sign {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    color: var(--color-ink-3);
+  }
+  .ms__sig {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.5rem;
+    color: var(--color-ink);
+  }
+</style>

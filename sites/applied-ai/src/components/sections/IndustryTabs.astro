@@ -1,0 +1,239 @@
+---
+/**
+ * IndustryTabs — "built around how your firm works". Accessible tabs
+ * (WAI-ARIA tabs pattern: arrow keys, Home/End, roving tabindex). Each
+ * panel shows three example workflows for that kind of firm. Without JS,
+ * every panel is visible as a plain list.
+ */
+interface Item { title: string; body: string }
+interface Industry { id: string; label: string; who: string; items: Item[] }
+interface Props {
+  industries: Industry[];
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const { industries, class: cls = "", ...rest } = Astro.props;
+---
+
+<div class:list={["itabs", cls]} data-itabs {...rest}>
+  <div class="itabs__list" role="tablist" aria-label="Industries">
+    {industries.map((ind, i) => (
+      <button
+        type="button"
+        role="tab"
+        class="itabs__tab"
+        id={`tab-${ind.id}`}
+        aria-controls={`panel-${ind.id}`}
+        aria-selected={i === 0 ? "true" : "false"}
+        tabindex={i === 0 ? "0" : "-1"}
+      >
+        <span class="itabs__num">{String(i + 1).padStart(2, "0")}</span>
+        {ind.label}
+      </button>
+    ))}
+  </div>
+
+  <div class="itabs__panels">
+    {industries.map((ind, i) => (
+      <section class:list={["itabs__panel", i === 0 && "is-active"]} id={`panel-${ind.id}`} role="tabpanel" aria-labelledby={`tab-${ind.id}`} tabindex="0">
+        <p class="itabs__who">{ind.who}</p>
+        <ol class="itabs__items">
+          {ind.items.map((it, k) => (
+            <li class="itabs__item" style={`--k:${k}`}>
+              <span class="itabs__wf">WF-{String(i + 1).padStart(2, "0")}.{k + 1}</span>
+              <h3 class="itabs__title">{it.title}</h3>
+              <p class="itabs__body">{it.body}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))}
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-itabs]").forEach((root) => {
+    root.classList.add("is-enhanced");
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>("[role=tab]"));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>("[role=tabpanel]"));
+    const select = (i: number, focus = false) => {
+      tabs.forEach((t, k) => {
+        const on = k === i;
+        t.setAttribute("aria-selected", String(on));
+        t.tabIndex = on ? 0 : -1;
+        panels[k].classList.toggle("is-active", on);
+        panels[k].hidden = !on;
+      });
+      if (focus) tabs[i].focus();
+    };
+    panels.forEach((p, k) => (p.hidden = k !== 0));
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => select(i));
+      t.addEventListener("keydown", (e) => {
+        const last = tabs.length - 1;
+        const map: Record<string, number> = { ArrowRight: i === last ? 0 : i + 1, ArrowDown: i === last ? 0 : i + 1, ArrowLeft: i === 0 ? last : i - 1, ArrowUp: i === 0 ? last : i - 1, Home: 0, End: last };
+        if (e.key in map) {
+          e.preventDefault();
+          select(map[e.key], true);
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .itabs {
+    display: grid;
+    gap: clamp(2rem, 1.2rem + 3vw, 4rem);
+  }
+  @media (min-width: 1024px) {
+    .itabs {
+      grid-template-columns: 4fr 8fr;
+    }
+  }
+  .itabs__list {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--color-line-strong);
+  }
+  @media (min-width: 1024px) {
+    .itabs__list {
+      flex-direction: column;
+      border-bottom: 0;
+      border-left: 1px solid var(--color-line-strong);
+      align-self: start;
+    }
+  }
+  .itabs__tab {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex: none;
+    min-height: 2.75rem;
+    padding: 0.7rem 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.625rem);
+    line-height: 1.15;
+    color: var(--color-ink-3);
+    text-align: left;
+    cursor: pointer;
+    transition: color var(--dur-ui) var(--ease-out);
+  }
+  .itabs__tab::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 450ms var(--ease-out);
+  }
+  @media (min-width: 1024px) {
+    .itabs__tab {
+      padding-left: 1.5rem;
+    }
+    .itabs__tab::after {
+      left: -1px;
+      right: auto;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      height: auto;
+      transform: scaleY(0);
+      transform-origin: top;
+    }
+  }
+  .itabs__tab:hover {
+    color: var(--color-ink);
+  }
+  .itabs__tab[aria-selected="true"] {
+    color: var(--color-ink);
+  }
+  .itabs__tab[aria-selected="true"]::after {
+    transform: none;
+  }
+  .itabs__num {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    color: var(--color-ink-3);
+  }
+
+  .itabs__who {
+    max-width: 38rem;
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+    color: var(--color-ink-2);
+    margin-bottom: 2rem;
+  }
+  .itabs__items {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid var(--color-line-strong);
+  }
+  @media (min-width: 768px) {
+    .itabs__items {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .itabs__item {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    padding: 1.5rem 1.5rem 1.5rem 0;
+  }
+  @media (min-width: 768px) {
+    .itabs__item + .itabs__item {
+      padding-left: 1.5rem;
+      border-left: 1px solid var(--color-line);
+    }
+  }
+  @media (max-width: 767px) {
+    .itabs__item + .itabs__item {
+      border-top: 1px solid var(--color-line);
+    }
+  }
+  .itabs__wf {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    color: var(--color-accent-deep);
+    letter-spacing: 0.06em;
+  }
+  .itabs__title {
+    font-family: var(--font-display);
+    font-size: var(--text-heading);
+    line-height: 1.15;
+    color: var(--color-ink);
+  }
+  .itabs__body {
+    font-size: var(--text-small);
+    line-height: 1.55;
+    color: var(--color-ink-2);
+  }
+
+  /* Without JS, show every panel stacked. */
+  .itabs:not(.is-enhanced) .itabs__list {
+    display: none;
+  }
+  .itabs:not(.is-enhanced) .itabs__panels {
+    display: grid;
+    gap: 3rem;
+    grid-column: 1 / -1;
+  }
+  .itabs__panel.is-active .itabs__item {
+    animation: itab-in 600ms var(--ease-out) both;
+    animation-delay: calc(var(--k) * 80ms);
+  }
+  @keyframes itab-in {
+    from { opacity: 0; transform: translateY(0.75rem); }
+  }
+  .itabs__panel:focus-visible {
+    outline-offset: 8px;
+  }
+</style>

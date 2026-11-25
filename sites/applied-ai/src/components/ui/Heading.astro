@@ -1,0 +1,35 @@
+---
+/**
+ * Heading — a headline in one of the type roles, with optional split reveal.
+ *
+ *   <Heading as="h1" size="display" split="lines">
+ *     A checking account designed to <em>protect you</em> from day one.
+ *   </Heading>
+ *
+ * <em> inside a display/title heading renders as the accent word (see
+ * theme: --accent-word-color/-style/-family). Wrap phrases in <Mark> for
+ * hand-drawn annotations. Use &nbsp; to keep short phrases together.
+ */
+interface Props {
+  as?: "h1" | "h2" | "h3" | "h4" | "p" | "span" | "div";
+  size?: "figure" | "display" | "title" | "heading";
+  split?: "lines" | "words" | "chars" | false;
+  reveal?: string | false;
+  delay?: number;
+  id?: string;
+  class?: string;
+  /** Forwarded to the root (incl. the parent's scoped-style attribute). */
+  [key: string]: unknown;
+}
+const { as: Tag = "h2", size = "title", split = false, reveal = false, delay, id, class: cls = "", ...rest} = Astro.props;
+---
+
+<Tag
+  id={id}
+  class:list={[`type-${size}`, cls]} {...rest}
+  data-split={split || undefined}
+  data-reveal={!split && reveal ? reveal : undefined}
+  data-delay={delay}
+>
+  <slot />
+</Tag>
